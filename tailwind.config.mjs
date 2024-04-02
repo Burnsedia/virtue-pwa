@@ -86,5 +86,6 @@ export default {
       },
     },
   },
-  plugins: [animate],
+  plugins: [require("daisyui"), animate],
+
 }

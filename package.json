@@ -23,5 +23,8 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.4.3",
     "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "daisyui": "^4.9.0"
   }
 }

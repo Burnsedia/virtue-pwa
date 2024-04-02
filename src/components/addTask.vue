@@ -15,11 +15,20 @@ export default {
     }
   },
   methods: {
-    addTask() {
-      this.$emit('add-task', this.newTask)
-      this.newTask = ''
-    }
-  } 
+   addTask() {
+      if (this.newTask.trim().length == 0) {
+        return
+      }
+      this.totask.push({
+        id: this.idForTask,
+        title: this.newTask,
+        completed: false,
+        editing: false,
+        priority: 0
+      })
 
+      this.newTask = ''
+      this.idForTask++
+    },
 }
 </script>

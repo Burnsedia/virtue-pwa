@@ -7,8 +7,8 @@ import Footer from '../components/footer.astro';
 
 <Layout title="Welcome to Astro.">
   <Header />
-	<main class="h-screen">
-    <div class="grid grid-cols-1 sm:grid-cols-2 container mx-auto gap-8 py-48">
+	<main class="h-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 container mx-auto py-auto mt-16 gap-8">
      <div class="borde-red-500  h-96">
         DO Now
         <Card />
@@ -26,7 +26,7 @@ import Footer from '../components/footer.astro';
         <Card />
       </div>
     </div>		
+    <!-- <Footer /> -->
 	</main>
-  <Footer />
 </Layout>
 

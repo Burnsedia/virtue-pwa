@@ -1,19 +1,16 @@
 <template>
   <div>
-    <h1>Tasks</h1>
-    <table>
-      <tr>
-        <th>id</th>
-        <th>text</th>
-        <th>isCompleted</th>
-        <th>Priority</th>
-      </tr>
-      <tr v-for="task in filteredTasks" :key="task.id">
-        <td>{{ task.id }}</td>
-        <td>{{ task.text }}</td>
-        <td>{{ task.isCompleted }}</td>
-        <td>{{ task.Priority }}</td>
-      </tr>
+    <table class="table">
+      <thead>
+          <th>Task</th>
+          <th>Done</th>
+      </thead>
+      <tbody>
+        <tr v-for="task in filteredTasks" :key="task.id">
+          <td>{{ task.text }}</td>
+          <td>{{ task.isCompleted }}</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>

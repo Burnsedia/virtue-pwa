@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import Header from '../components/header.astro';
 import Footer from '../components/footer.astro';
+import Task from "../components/task.vue"
 ---
 
 <Layout title="Welcome to Astro.">
@@ -10,20 +11,16 @@ import Footer from '../components/footer.astro';
 	<main class="h-full">
     <div class="grid grid-cols-1 sm:grid-cols-2 container mx-auto py-auto mt-16 gap-8">
      <div class="bg-base-200 border border-secondary h-96">
-        DO Now
-        <!-- <Card /> -->
+        <Task priorities={[1]} client:load/>
      </div>  
       <div class="border border-primary bg-base-200 h-96">
-       Plan Now
-      <!-- <Card /> -->
+        <Task priorities={[2]} client:load/>
       </div>
       <div class="border border-success bg-base-200 h-96">
-        Do Later
-        <!-- <Card /> -->
+        <Task priorities={[3]} client:load/>
       </div>
       <div class="border border-alert bg-base-200 h-96">
-       Let the Bots do it 
-        <!-- <Card /> -->
+        <Task priorities={[4]} client:load/>
       </div>
     </div>		
     <!-- <Footer /> -->

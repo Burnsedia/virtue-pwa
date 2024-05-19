@@ -2,13 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 import Header from '../components/header.astro';
-import Footer from '../components/footer.astro';
 import Task from "../components/task.vue"
 ---
 
 <Layout title="Welcome to Astro.">
   <Header />
-	<main class="h-full">
+	<main class="h-screen">
     <div class="grid grid-cols-1 sm:grid-cols-2 container mx-auto py-auto mt-16 gap-8">
      <div class="bg-base-200 border border-secondary h-96">
         <Task priorities={[1]} client:load/>
@@ -23,7 +22,6 @@ import Task from "../components/task.vue"
         <Task priorities={[4]} client:load/>
       </div>
     </div>		
-    <!-- <Footer /> -->
 	</main>
 </Layout>
 

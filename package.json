@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "api": "json-server --watch db.json --port 3000"
   },
   "dependencies": {
     "@astrojs/vue": "^5.1.0",

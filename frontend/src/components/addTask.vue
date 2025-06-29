@@ -1,122 +1,99 @@
-// create a new task
 <template>
   <div>
-    <h1>Tasks</h1>
-    <form @submit.prevent="addTask">
-      <input v-model="newTask.text" placeholder="New Task" required />
-      <select v-model="newTask.Priority">
-        <option v-for="n in 4" :key="n" :value="n">{{ n }}</option>
-      </select>
-      <button type="submit">Add Task</button>
-    </form>
-    <table>
-      <tr>
-        <th>id</th>
-        <th>text</th>
-        <th>isCompleted</th>
-        <th>Priority</th>
-        <th>Actions</th>
-      </tr>
-      <tr v-for="task in tasks" :key="task.id">
-        <td>{{ task.id }}</td>
-        <td>{{ task.text }}</td>
-        <td>{{ task.isCompleted }}</td>
-        <td>{{ task.Priority }}</td>
-        <td>
-          <button @click="deleteTask(task.id)">Delete</button>
-          <button @click="editTask(task)">Edit</button>
-        </td>
-      </tr>
-    </table>
+    <!-- Add Task Button -->
+    <button class="btn btn-primary" @click="open = true">
+      + Add Task
+    </button>
+
+    <!-- Modal -->
+    <div v-if="open" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-lg font-bold mb-4">Create New Task</h2>
+
+        <form @submit.prevent="submit">
+          <input v-model="form.title" type="text" placeholder="Title" class="input input-bordered w-full mb-3"
+            required />
+
+          <textarea v-model="form.description" placeholder="Description"
+            class="textarea textarea-bordered w-full mb-3" />
+
+          <input v-model.number="form.estimate_minutes" type="number" placeholder="Estimate (minutes)"
+            class="input input-bordered w-full mb-3" min="0" />
+
+          <label class="block mb-1 font-bold">Priority</label>
+          <select v-model.number="form.priority" class="select select-bordered w-full mb-3">
+            <option :value="1">🔥 Urgent & Important</option>
+            <option :value="2">⚠️ Urgent & Not Important</option>
+            <option :value="3">🌱 Not Urgent & Important</option>
+            <option :value="4">🧘 Not Urgent & Not Important</option>
+          </select>
+
+          <label class="block mb-1 font-bold">Status</label>
+          <select v-model="form.status" class="select select-bordered w-full mb-3">
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+
+          <div class="flex justify-end gap-2">
+            <button class="btn" type="button" @click="open = false">Cancel</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      tasks: [],
-      newTask: {
-        text: '',
-        isCompleted: false,
-        Priority: 1
-      }
-    };
-  },
-  methods: {
-    async fetchTasks() {
-      try {
-        const response = await fetch('http://localhost:8000/api/');
-        this.tasks = await response.json();
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    },
-    async addTask() {
-      try {
-        const response = await fetch('http://localhost:3000/Issues', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.newTask)
-        });
-        const addedTask = await response.json();
-        this.tasks.push(addedTask);
-        this.newTask.text = '';
-        this.newTask.Priority = 1;
-      } catch (error) {
-        console.error('Error adding task:', error);
-      }
-    },
-    async deleteTask(id) {
-      try {
-        await fetch(`http://localhost:3000/Issues/${id}`, {
-          method: 'DELETE'
-        });
-        this.tasks = this.tasks.filter(task => task.id !== id);
-      } catch (error) {
-        console.error('Error deleting task:', error);
-      }
-    },
-    async editTask(task) {
-      const updatedText = prompt('Update Task', task.text);
-      if (updatedText !== null) {
-        const updatedTask = { ...task, text: updatedText };
-        try {
-          await fetch(`http://localhost:3000/Issues/${task.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedTask)
-          });
-          this.tasks = this.tasks.map(t => (t.id === task.id ? updatedTask : t));
-        } catch (error) {
-          console.error('Error updating task:', error);
-        }
-      }
-    }
-  },
-  created() {
-    this.fetchTasks();
+<script setup>
+import { ref } from 'vue';
+
+const props = defineProps({
+  projectId: {
+    type: Number,
+    required: true
   }
-};
+});
+
+const emit = defineEmits(['created']);
+
+const open = ref(false);
+
+const form = ref({
+  title: '',
+  description: '',
+  estimate_minutes: 0,
+  priority: 3,
+  status: 'todo'
+});
+
+async function submit() {
+  const response = await fetch('http://localhost:8000/api/issues/', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      ...form.value,
+      project: props.projectId
+    })
+  });
+
+  if (response.ok) {
+    open.value = false;
+    emit('created'); // let parent know to refresh
+    form.value = {
+      title: '',
+      description: '',
+      estimate_minutes: 0,
+      priority: 3,
+      status: 'todo'
+    };
+  } else {
+    const err = await response.json();
+    console.error(err);
+    alert('Error creating task');
+  }
+}
 </script>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-</style>

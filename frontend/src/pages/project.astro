@@ -1,25 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/header.astro';
-import Task from "../components/task.vue"
+import ProjectMatrix from '../components/ProjectMatrix.vue';
 ---
-
-<Layout title="Welcome to Astro.">
-	<main>
-    <div class="grid grid-cols-1 sm:grid-cols-2 container mx-auto py-auto mt-16 gap-8">
-     <div class="bg-base-200 border border-secondary h-96">
-        <Task priorities={[1]} client:load/>
-     </div>  
-      <div class="border border-primary bg-base-200 h-96">
-        <Task priorities={[2]} client:load/>
-      </div>
-      <div class="border border-success bg-base-200 h-96">
-        <Task priorities={[3]} client:load/>
-      </div>
-      <div class="border border-alert bg-base-200 h-96">
-        <Task priorities={[4]} client:load/>
-      </div>
-    </div>		
-	</main>
+<Layout title="Projects">
+  <main class="container mx-auto mt-12">
+    <ProjectMatrix client:only="vue" />
+  </main>
 </Layout>
 

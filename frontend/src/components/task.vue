@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table table-sm w-full">
+    <table class="table w-full table-sm">
       <thead>
         <tr>
           <th>Task</th>
@@ -31,21 +31,17 @@ export default {
   computed: {
     filteredTasks() {
       return this.tasks.filter(
-        task =>
-          this.priorities.includes(task.priority) &&
-          task.project === this.projectId
+        task => this.priorities.includes(task.priority) && task.project === this.projectId
       );
     }
   },
-  methods: {
-    async getTasks() {
-      const res = await fetch('http://localhost:8000/api/issues/');
-      const data = await res.json();
-      this.tasks = data;
-    }
-  },
-  created() {
-    this.getTasks();
+  async created() {
+    const res = await fetch('http://localhost:8000/api/issues/', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    this.tasks = await res.json();
   }
 };
 </script>

@@ -46,7 +46,7 @@ export default {
   methods: {
     async fetchTasks() {
       try {
-        const response = await fetch('http://localhost:3000/Issues');
+        const response = await fetch('http://localhost:8000/api/');
         this.tasks = await response.json();
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -109,12 +109,14 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
-th, td {
+
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
 }
+
 th {
   background-color: #f2f2f2;
 }
 </style>
-

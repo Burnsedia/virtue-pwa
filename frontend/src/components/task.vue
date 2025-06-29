@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table">
+    <table class="table table-sm w-full">
       <thead>
         <tr>
           <th>Task</th>
@@ -10,15 +10,7 @@
       <tbody>
         <tr v-for="task in filteredTasks" :key="task.id">
           <td>{{ task.title }}</td>
-          <td>
-            <span :class="{
-              'text-success': task.status === 'done',
-              'text-warning': task.status === 'in_progress',
-              'text-error': task.status === 'todo'
-            }">
-              {{ task.status }}
-            </span>
-          </td>
+          <td>{{ task.status }}</td>
         </tr>
       </tbody>
     </table>
@@ -28,10 +20,8 @@
 <script>
 export default {
   props: {
-    priorities: {
-      type: Array,
-      required: true
-    }
+    priorities: Array,
+    projectId: Number
   },
   data() {
     return {
@@ -40,23 +30,18 @@ export default {
   },
   computed: {
     filteredTasks() {
-      return this.tasks.filter(task => this.priorities.includes(task.priority));
+      return this.tasks.filter(
+        task =>
+          this.priorities.includes(task.priority) &&
+          task.project === this.projectId
+      );
     }
   },
   methods: {
     async getTasks() {
-      try {
-        const response = await fetch('http://localhost:8000/api/issues/', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const data = await response.json();
-        this.tasks = data;
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
+      const res = await fetch('http://localhost:8000/api/issues/');
+      const data = await res.json();
+      this.tasks = data;
     }
   },
   created() {

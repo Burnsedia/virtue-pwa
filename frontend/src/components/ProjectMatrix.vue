@@ -1,6 +1,7 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
     <CreateProjectModal @created="fetchProjects" />
+    <AddTask :project-id="selectedProjectId" @created="refreshTasks" />
 
     <div class="flex items-center justify-between mb-4">
       <select v-model="selectedProjectId" class="select select-bordered w-full">
@@ -34,6 +35,7 @@
 
 <script>
 import Task from './task.vue';
+import AddTask from "./addTask.vue";
 import CreateProjectModal from './CreateProject.vue';
 
 export default {

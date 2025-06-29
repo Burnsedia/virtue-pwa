@@ -2,8 +2,8 @@
   <div>
     <table class="table">
       <thead>
-          <th>Task</th>
-          <th>Done</th>
+        <th>Task</th>
+        <th>Done</th>
       </thead>
       <tbody>
         <tr v-for="task in filteredTasks" :key="task.id">

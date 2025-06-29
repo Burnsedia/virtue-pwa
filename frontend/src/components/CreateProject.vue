@@ -1,18 +1,36 @@
 <template>
-  <form @submit.prevent="createProject" class="max-w-md p-4 bg-base-100 rounded shadow">
-    <h2 class="text-lg font-bold mb-4">Create New Project</h2>
+  <div>
+    <!-- Trigger Button -->
+    <button class="btn btn-primary mb-4" @click="open = true">
+      + New Project
+    </button>
 
-    <input v-model="name" type="text" placeholder="Project name" class="input input-bordered w-full mb-3" required />
-    <textarea v-model="description" placeholder="Description" class="textarea textarea-bordered w-full mb-3" />
+    <!-- Modal -->
+    <div v-if="open" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-base-100 p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-lg font-bold mb-4">Create New Project</h2>
 
-    <button class="btn btn-primary w-full" type="submit">Create</button>
-  </form>
+        <form @submit.prevent="createProject">
+          <input v-model="name" type="text" placeholder="Project name" class="input input-bordered w-full mb-3"
+            required />
+          <textarea v-model="description" placeholder="Description" class="textarea textarea-bordered w-full mb-3" />
+
+          <div class="flex justify-end gap-2">
+            <button type="button" class="btn" @click="open = false">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
+  emits: ['created'],
   data() {
     return {
+      open: false,
       name: '',
       description: ''
     };
@@ -35,10 +53,11 @@ export default {
       if (res.ok) {
         this.name = '';
         this.description = '';
-        alert('Project created!');
+        this.open = false;
+        this.$emit('created'); // Notify parent to refresh project list
       } else {
-        const data = await res.json();
-        console.error(data);
+        const error = await res.json();
+        console.error(error);
         alert('Error creating project.');
       }
     }

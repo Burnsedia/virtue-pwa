@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/header.astro';
 import ProjectMatrix from '../components/ProjectMatrix.vue';
+import CreateProject from '../components/CreateProject.vue';
 ---
+
 <Layout title="Projects">
-  <main class="container mx-auto mt-12">
-    <ProjectMatrix client:only="vue" />
+  <main class="p-6 max-w-6xl mx-auto">
+    <ProjectMatrix client:only="vue" class="mt-10" />
   </main>
 </Layout>
 

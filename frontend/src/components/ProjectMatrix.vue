@@ -1,6 +1,7 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <label class="block mb-2 text-lg font-bold">Select a project</label>
+    <CreateProjectModal @created="fetchProjects" />
+
     <select v-model="selectedProjectId" class="select select-bordered mb-6 w-full">
       <option disabled value="">-- Choose Project --</option>
       <option v-for="project in projects" :key="project.id" :value="project.id">
@@ -26,24 +27,29 @@
 </template>
 
 <script>
-import Task from './Task.vue';
+import Task from './task.vue';
+import CreateProjectModal from './CreateProject.vue';
 
 export default {
-  components: { Task },
+  components: { Task, CreateProjectModal },
   data() {
     return {
       projects: [],
       selectedProjectId: ''
     };
   },
-  async created() {
-    const res = await fetch('http://localhost:8000/api/projects/', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    const data = await res.json();
-    this.projects = data;
+  created() {
+    this.fetchProjects();
+  },
+  methods: {
+    async fetchProjects() {
+      const res = await fetch('http://localhost:8000/api/projects/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      this.projects = await res.json();
+    }
   }
 };
 </script>

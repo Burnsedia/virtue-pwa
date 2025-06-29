@@ -6,6 +6,9 @@
 
 /* src/styles/global.css */
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @plugin "daisyui" {
   themes: ["light", "dark"];
@@ -46,3 +49,53 @@
   --noise: 0;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong
+b {
+	color: #fff;
+}
+a {
+	color: #fff;
+}
+p{
+  padding: 10px;
+}
+nav a {
+	margin-right: 10px;
+}
+textarea {
+	width: 100%;
+	font-size: 16px;
+}
+input {
+	font-size: 16px;
+}
+content {
+	line-height: 1.6;
+}
+table {
+	width: 100%;
+}
+img {
+	max-width: 100%;
+	height: auto;
+}
+code {
+	padding: 2px 5px;
+	background-color: #777;
+}
+pre {
+	padding: 1rem;
+}
+pre > code {
+	all: unset;
+}
+ul {
+  list-style-type: disc; /* Use 'disc' for default bullet points */
+  padding-left: 25px;
+}

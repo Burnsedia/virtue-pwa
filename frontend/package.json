@@ -19,6 +19,6 @@
     "vue": "^3.5.17"
   },
   "devDependencies": {
-    "daisyui": "^4.9.0"
+    "daisyui": "^5.0.43"
   }
 }

@@ -2,18 +2,29 @@
   <div>
     <table class="table">
       <thead>
-        <th>Task</th>
-        <th>Done</th>
+        <tr>
+          <th>Task</th>
+          <th>Status</th>
+        </tr>
       </thead>
       <tbody>
         <tr v-for="task in filteredTasks" :key="task.id">
-          <td>{{ task.text }}</td>
-          <td>{{ task.isCompleted }}</td>
+          <td>{{ task.title }}</td>
+          <td>
+            <span :class="{
+              'text-success': task.status === 'done',
+              'text-warning': task.status === 'in_progress',
+              'text-error': task.status === 'todo'
+            }">
+              {{ task.status }}
+            </span>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </template>
+
 <script>
 export default {
   props: {
@@ -29,13 +40,18 @@ export default {
   },
   computed: {
     filteredTasks() {
-      return this.tasks.filter(task => this.priorities.includes(task.Priority));
+      return this.tasks.filter(task => this.priorities.includes(task.priority));
     }
   },
   methods: {
     async getTasks() {
       try {
-        const response = await fetch('http://localhost:3000/Issues');
+        const response = await fetch('http://localhost:8000/api/issues/', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
         const data = await response.json();
         this.tasks = data;
       } catch (error) {
@@ -46,5 +62,5 @@ export default {
   created() {
     this.getTasks();
   }
-}
+};
 </script>

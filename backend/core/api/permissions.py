@@ -8,7 +8,7 @@ def is_user_premium(user):
     # This assumes a Customer object exists for the user in djstripe
     return Subscription.objects.filter(
         customer__subscriber=user,
-        status__in=[Subscription.STATUS_ACTIVE, Subscription.STATUS_TRIALING]
+        status__in=['active', 'trialing']
     ).exists()
 
 class IsPremiumUser(permissions.BasePermission):

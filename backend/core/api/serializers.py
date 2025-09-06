@@ -13,6 +13,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class IssueSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Issue
         fields = '__all__'

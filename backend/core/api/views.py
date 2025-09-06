@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from djstripe.models import Product, Price
 import stripe
+from django.db.models import Q # Add this import
 
 from .models import Organization, Project, Issue, TimeLog
 from .serializers import *

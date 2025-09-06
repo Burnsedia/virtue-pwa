@@ -116,6 +116,7 @@ export default {
   created() {},
   mounted() {
     this.fetchProjects();
+    this.fetchIssues();
   },
   watch: {
     selectedProjectId() {

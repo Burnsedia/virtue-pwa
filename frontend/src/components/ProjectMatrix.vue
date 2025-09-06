@@ -93,7 +93,8 @@ export default {
       taskKey: 0,
     };
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchProjects();
   },
   methods: {

@@ -37,7 +37,8 @@ export default {
       projects: [],
     };
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchProjects();
   },
   methods: {

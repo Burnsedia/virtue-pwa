@@ -79,7 +79,8 @@ export default {
       issues: [],
     };
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchProjects();
   },
   watch: {

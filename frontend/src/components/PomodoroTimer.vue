@@ -91,8 +91,15 @@ export default {
       return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     },
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchProjects();
+    this.fetchIssues();
+  },
+  watch: {
+    selectedProject() {
+      this.fetchIssues();
+    }
   },
   methods: {
     async fetchProjects() {

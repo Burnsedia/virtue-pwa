@@ -15,6 +15,17 @@
     </div>
 
     <div class="mt-8">
+      <select v-model="selectedProject" @change="fetchIssues" class="select select-bordered w-full max-w-xs">
+        <option disabled value="">Select a project</option>
+        <option v-for="project in projects" :key="project.id" :value="project.id">{{ project.name }}</option>
+      </select>
+      <select v-model="selectedIssue" class="select select-bordered w-full max-w-xs">
+        <option disabled value="">Select an issue</option>
+        <option v-for="issue in issues" :key="issue.id" :value="issue.id">{{ issue.title }}</option>
+      </select>
+    </div>
+
+    <div class="mt-8">
       <button @click="showSettings = true" class="btn btn-ghost">Settings</button>
     </div>
 
@@ -65,7 +76,12 @@ export default {
         work: 25,
         shortBreak: 5,
         longBreak: 15,
-      }
+      },
+      projects: [],
+      issues: [],
+      selectedProject: '',
+      selectedIssue: '',
+      activeTimeLog: null,
     };
   },
   computed: {
@@ -75,9 +91,49 @@ export default {
       return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     },
   },
+  created() {
+    this.fetchProjects();
+  },
   methods: {
-    startTimer() {
+    async fetchProjects() {
+      const res = await fetch('http://localhost:8000/api/projects/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      this.projects = await res.json();
+    },
+    async fetchIssues() {
+      if (!this.selectedProject) return;
+      const res = await fetch(`http://localhost:8000/api/issues/?project=${this.selectedProject}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      this.issues = await res.json();
+    },
+    async startTimer() {
       if (this.timer) return;
+      if (this.sessionType === 'work' && !this.selectedIssue) {
+        alert('Please select an issue to work on.');
+        return;
+      }
+
+      if (this.sessionType === 'work') {
+        const res = await fetch('http://localhost:8000/api/timelogs/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            issue: this.selectedIssue,
+            start_time: new Date().toISOString(),
+          }),
+        });
+        this.activeTimeLog = await res.json();
+      }
+
       this.timer = setInterval(() => {
         if (this.time > 0) {
           this.time--;
@@ -97,9 +153,23 @@ export default {
         }
       }, 1000);
     },
-    pauseTimer() {
+    async pauseTimer() {
       clearInterval(this.timer);
       this.timer = null;
+
+      if (this.activeTimeLog) {
+        await fetch(`http://localhost:8000/api/timelogs/${this.activeTimeLog.id}/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            end_time: new Date().toISOString(),
+          }),
+        });
+        this.activeTimeLog = null;
+      }
     },
     resetTimer() {
       this.pauseTimer();

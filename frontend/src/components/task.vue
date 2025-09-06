@@ -7,6 +7,7 @@
         <tr>
           <th>Task</th>
           <th>Status</th>
+          <th>Time Logged</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -14,6 +15,7 @@
         <tr v-for="task in filteredTasks" :key="task.id">
           <td>{{ task.title }}</td>
           <td>{{ task.status }}</td>
+          <td>{{ getTotalTimeLogged(task) }}</td>
           <td>
             <EditIssueModal :issue="task" @updated="getTasks" />
 
@@ -36,7 +38,8 @@ export default {
   },
   data() {
     return {
-      tasks: []
+      tasks: [],
+      timeLogs: []
     };
   },
   computed: {
@@ -56,6 +59,28 @@ export default {
         }
       });
       this.tasks = await res.json();
+      this.getTimeLogs();
+    },
+    async getTimeLogs() {
+      const res = await fetch('http://localhost:8000/api/timelogs/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      this.timeLogs = await res.json();
+    },
+    getTotalTimeLogged(task) {
+      const taskTimeLogs = this.timeLogs.filter(log => log.issue === task.id);
+      const totalSeconds = taskTimeLogs.reduce((acc, log) => {
+        if (log.end_time) {
+          const start = new Date(log.start_time);
+          const end = new Date(log.end_time);
+          return acc + (end - start) / 1000;
+        }
+        return acc;
+      }, 0);
+      const minutes = Math.floor(totalSeconds / 60);
+      return `${minutes} minutes`;
     }
   },
   created() {

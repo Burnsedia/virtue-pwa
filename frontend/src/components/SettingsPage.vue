@@ -21,8 +21,7 @@
 
         <div v-if="currentSection === 'preferences'">
           <h2 class="text-2xl font-bold mb-4">Application Preferences</h2>
-          <!-- Application Preferences Components will go here -->
-          <p>Customize Pomodoro timer, notifications, and appearance.</p>
+          <ApplicationPreferences />
         </div>
 
         <div v-if="currentSection === 'subscription'">
@@ -39,9 +38,10 @@
 import ChangeEmail from './ChangeEmail.vue';
 import ChangePassword from './ChangePassword.vue';
 import DeleteAccount from './DeleteAccount.vue';
+import ApplicationPreferences from './ApplicationPreferences.vue';
 
 export default {
-  components: { ChangeEmail, ChangePassword, DeleteAccount },
+  components: { ChangeEmail, ChangePassword, DeleteAccount, ApplicationPreferences },
   data() {
     return {
       currentSection: 'account',

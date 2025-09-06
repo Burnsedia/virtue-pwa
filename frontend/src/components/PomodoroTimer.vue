@@ -24,42 +24,6 @@
         <option v-for="issue in issues" :key="issue.id" :value="issue.id">{{ issue.title }}</option>
       </select>
     </div>
-
-    <div class="mt-8">
-      <button @click="showSettings = true" class="btn btn-ghost">Settings</button>
-    </div>
-
-    <div v-if="showSettings" class="modal modal-open">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg">Settings</h3>
-        
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Pomodoro Duration (minutes)</span>
-          </label>
-          <input type="number" v-model.number="settings.work" class="input input-bordered">
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Short Break Duration (minutes)</span>
-          </label>
-          <input type="number" v-model.number="settings.shortBreak" class="input input-bordered">
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Long Break Duration (minutes)</span>
-          </label>
-          <input type="number" v-model.number="settings.longBreak" class="input input-bordered">
-        </div>
-
-        <div class="modal-action">
-          <button @click="showSettings = false" class="btn">Close</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -71,8 +35,7 @@ export default {
       time: 25 * 60, 
       sessionType: 'work', // work, shortBreak, longBreak
       pomodoros: 0,
-      showSettings: false,
-      settings: {
+      pomodoroSettings: {
         work: 25,
         shortBreak: 5,
         longBreak: 15,
@@ -93,6 +56,7 @@ export default {
   },
   created() {},
   mounted() {
+    this.loadPomodoroSettings();
     this.fetchProjects();
     this.fetchIssues();
   },
@@ -102,6 +66,13 @@ export default {
     }
   },
   methods: {
+    loadPomodoroSettings() {
+      const savedSettings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+      if (savedSettings) {
+        this.pomodoroSettings = savedSettings;
+      }
+      this.resetTimer(); // Apply loaded settings
+    },
     async fetchProjects() {
       const res = await fetch('http://localhost:8000/api/projects/', {
         headers: {
@@ -180,7 +151,7 @@ export default {
     },
     resetTimer() {
       this.pauseTimer();
-      this.time = this.settings[this.sessionType] * 60;
+      this.time = this.pomodoroSettings[this.sessionType] * 60;
     },
     setSession(type) {
       this.sessionType = type;

@@ -1,19 +1,33 @@
-<header class="w-full h-15 py-4 z-10 fixed backdrop-blur-md shadow-pink navbar navbar-start">
-<div class="navbar ">
+<header class="w-full h-15 py-4 z-10 fixed backdrop-blur-md shadow-pink navbar">
   <div class="navbar-start">
-    <a href="/" class="btn btn-ghost">Home</a>
+    <div class="dropdown">
+      <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
+      </div>
+      <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+        <li><a href="/projects">Projects</a></li>
+        <li><a href="/crud">Kanban</a></li>
+        <li><a href="/matrix">Matrix</a></li>
+        <li><a href="/pomodoro">Pomodoro</a></li>
+        <li><a href="/settings">Settings</a></li>
+        <li><a href="/signin">Sign In</a></li>
+        <li><a href="/signup">Sign Up</a></li>
+      </ul>
+    </div>
+    <a href="/" class="btn btn-ghost text-xl">Virtue</a>
   </div>
-  <div class="navbar-center">
-      <a href="/" class="btn btn-ghost text-xl">Virtue</a>
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1">
+      <li><a href="/projects">Projects</a></li>
+      <li><a href="/crud">Kanban</a></li>
+      <li><a href="/matrix">Matrix</a></li>
+      <li><a href="/pomodoro">Pomodoro</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li><a href="/signin">Sign In</a></li>
+      <li><a href="/signup">Sign Up</a></li>
+    </ul>
   </div>
   <div class="navbar-end">
-    <a href="/projects" class="btn btn-ghost">Projects</a>
-    <a href="/crud" class="btn btn-ghost">Kanban</a>
-    <a href="/matrix" class="btn btn-ghost">Matrix</a>
-    <a href="/pomodoro" class="btn btn-ghost">Pomodoro</a>
-    <a href="/settings" class="btn btn-ghost">Settings</a>
-    <a href="/signin" class="btn btn-ghost">Sign In</a>
-    <a href="/signup" class="btn btn-ghost">Sign Up</a>
+    <a href="/" class="btn btn-ghost">Home</a>
   </div>
-</div>
 </header>

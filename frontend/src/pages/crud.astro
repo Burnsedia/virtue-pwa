@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import KanbanBoard from '../components/KanbanBoard.vue';
+---
+
+<Layout title="Kanban Board">
+  <main>
+    <KanbanBoard client:load />
+  </main>
+</Layout>

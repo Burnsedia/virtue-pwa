@@ -33,10 +33,16 @@ class Issue(models.Model):
         (3, "🌱 Not Urgent & Important"),
         (4, "🧘 Not Urgent & Not Important"),
     ]
+    STATUS_CHOICES = [
+        ('todo', 'To Do'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ]
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=3)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
     estimate_minutes = models.PositiveIntegerField(default=0)
     github_issue_number = models.IntegerField(null=True, blank=True)
 

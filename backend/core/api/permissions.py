@@ -1,13 +1,16 @@
 from rest_framework import permissions
-from djstripe.models import Subscription
+from djstripe.models import Subscription, Customer
 
 def is_user_premium(user):
     if not user.is_authenticated:
         return False
+    try:
+        customer = Customer.objects.get(subscriber=user)
+    except Customer.DoesNotExist:
+        return False
     # Check if the user has an active, paid subscription
-    # This assumes a Customer object exists for the user in djstripe
     return Subscription.objects.filter(
-        customer__subscriber=user,
+        customer=customer,
         status__in=['active', 'trialing']
     ).exists()
 

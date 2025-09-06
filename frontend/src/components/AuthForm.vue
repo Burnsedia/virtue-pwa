@@ -51,6 +51,16 @@ export default {
         if (res.ok) {
           const data = await res.json();
           localStorage.setItem('token', data.access);
+
+          // Fetch user details to get user ID
+          const userDetailsRes = await fetch('http://localhost:8000/auth/users/me/', {
+            headers: {
+              Authorization: `Bearer ${data.access}`,
+            },
+          });
+          const userDetailsData = await userDetailsRes.json();
+          const userId = userDetailsData.id;
+
           // Fetch and store user's premium status
           const userStatusRes = await fetch('http://localhost:8000/api/users/me/subscription_status/', {
             headers: {
@@ -61,6 +71,7 @@ export default {
           localStorage.setItem('userStatus', JSON.stringify({
             isLoggedIn: true,
             isPremium: userStatusData.is_premium,
+            userId: userId, // Store user ID
           }));
 
           alert('Login successful!');

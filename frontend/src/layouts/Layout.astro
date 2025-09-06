@@ -16,6 +16,15 @@ import "../styles/global.css";
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+
+		<link rel="manifest" href="/manifest.json" />
+		<meta name="theme-color" content="#000000" />
+
+		<script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/sw.js');
+			}
+		</script>
 	</head>
 	<body>
 		<slot />

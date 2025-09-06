@@ -26,8 +26,7 @@
 
         <div v-if="currentSection === 'subscription'">
           <h2 class="text-2xl font-bold mb-4">Subscription & Billing</h2>
-          <!-- Subscription & Billing Components will go here -->
-          <p>Manage your subscription plan and billing information.</p>
+          <BillingPortal />
         </div>
       </section>
     </div>
@@ -39,9 +38,10 @@ import ChangeEmail from './ChangeEmail.vue';
 import ChangePassword from './ChangePassword.vue';
 import DeleteAccount from './DeleteAccount.vue';
 import ApplicationPreferences from './ApplicationPreferences.vue';
+import BillingPortal from './BillingPortal.vue';
 
 export default {
-  components: { ChangeEmail, ChangePassword, DeleteAccount, ApplicationPreferences },
+  components: { ChangeEmail, ChangePassword, DeleteAccount, ApplicationPreferences, BillingPortal },
   data() {
     return {
       currentSection: 'account',

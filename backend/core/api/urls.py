@@ -7,8 +7,12 @@ router.register('organizations', OrganizationViewSet)
 router.register('projects', ProjectViewSet)
 router.register('issues', IssueViewSet)
 router.register('timelogs', TimeLogViewSet)
+router.register('products', SubscriptionProductViewSet)
+router.register('prices', SubscriptionPriceViewSet)
+router.register('checkout', CheckoutViewSet, basename='checkout')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('users/me/subscription_status/', UserSubscriptionStatusView.as_view(), name='user-subscription-status'),
 ]
 

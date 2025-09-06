@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Organization, Project, Issue, TimeLog
+from djstripe.models import Product, Price
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,5 +20,15 @@ class IssueSerializer(serializers.ModelSerializer):
 class TimeLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeLog
+        fields = '__all__'
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+class PriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Price
         fields = '__all__'
 

@@ -1,9 +1,14 @@
 <template>
   <div>
     <!-- Trigger Button -->
-    <button class="btn btn-primary mb-4" @click="open = true">
+    <button class="btn btn-primary mb-4" @click="open = true" :disabled="!canCreateProject">
       + New Project
     </button>
+
+    <p v-if="!canCreateProject" class="text-warning text-sm mb-4">
+      Free users are limited to one project. Upgrade to create more.
+      <a href="/pricing" class="link link-primary">View Plans</a>
+    </p>
 
     <!-- Modal -->
     <div v-if="open" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -26,17 +31,44 @@
 </template>
 
 <script>
+import authStatus from "../mixins/authStatus";
+
 export default {
   emits: ['created'],
+  mixins: [authStatus],
   data() {
     return {
       open: false,
       name: '',
-      description: ''
+      description: '',
+      userProjectsCount: 0,
     };
   },
+  computed: {
+    canCreateProject() {
+      return this.isPremium || this.userProjectsCount < 1;
+    },
+  },
+  created() {
+    this.fetchUserProjectsCount();
+  },
   methods: {
+    async fetchUserProjectsCount() {
+      if (!this.isLoggedIn) return;
+      const res = await fetch('http://localhost:8000/api/projects/?user_owner__email=' + localStorage.getItem('email'), {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const projects = await res.json();
+      this.userProjectsCount = projects.length;
+    },
     async createProject() {
+      if (!this.canCreateProject) {
+        alert('Free users are limited to one project. Please upgrade to create more.');
+        return;
+      }
+
       const res = await fetch('http://localhost:8000/api/projects/', {
         method: 'POST',
         headers: {
@@ -46,6 +78,7 @@ export default {
         body: JSON.stringify({
           name: this.name,
           description: this.description,
+          user_owner: null, // Django will set this based on the authenticated user
           org_owner: null
         })
       });
@@ -54,6 +87,7 @@ export default {
         this.name = '';
         this.description = '';
         this.open = false;
+        this.fetchUserProjectsCount(); // Refresh count after creation
         this.$emit('created'); // Notify parent to refresh project list
       } else {
         const error = await res.json();

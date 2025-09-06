@@ -14,8 +14,9 @@
       <section class="md:w-3/4 bg-base-200 p-6 rounded-box">
         <div v-if="currentSection === 'account'">
           <h2 class="text-2xl font-bold mb-4">Account Management</h2>
-          <!-- Account Management Components will go here -->
-          <p>Manage your email, password, and account deletion.</p>
+          <ChangeEmail />
+          <ChangePassword />
+          <DeleteAccount />
         </div>
 
         <div v-if="currentSection === 'preferences'">
@@ -35,7 +36,12 @@
 </template>
 
 <script>
+import ChangeEmail from './ChangeEmail.vue';
+import ChangePassword from './ChangePassword.vue';
+import DeleteAccount from './DeleteAccount.vue';
+
 export default {
+  components: { ChangeEmail, ChangePassword, DeleteAccount },
   data() {
     return {
       currentSection: 'account',

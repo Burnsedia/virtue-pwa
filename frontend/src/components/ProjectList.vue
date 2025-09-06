@@ -2,6 +2,7 @@
   <div class="max-w-5xl mx-auto p-4">
     <div v-if="isPremium">
       <CreateProjectModal @created="fetchProjects" />
+      <CreateOrganizationModal @created="fetchOrganizations" />
 
       <div class="overflow-x-auto">
         <table class="table w-full">
@@ -27,8 +28,8 @@
       </div>
     </div>
     <div v-else class="text-center p-8">
-      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to manage Projects</h2>
-      <p class="mb-4">This feature is available to premium subscribers only.</p>
+      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to manage more than 5 Projects</h2>
+      <p class="mb-4">Free users are limited to 5 projects. This feature is available to premium subscribers only.</p>
       <a href="/pricing" class="btn btn-primary">View Plans</a>
     </div>
   </div>
@@ -36,20 +37,23 @@
 
 <script>
 import CreateProjectModal from './CreateProject.vue';
+import CreateOrganizationModal from './CreateOrganizationModal.vue';
 import authStatus from "../mixins/authStatus";
 
 export default {
-  components: { CreateProjectModal },
+  components: { CreateProjectModal, CreateOrganizationModal },
   mixins: [authStatus],
   data() {
     return {
       projects: [],
+      organizations: [],
     };
   },
   created() {},
   mounted() {
     if (this.isPremium) {
       this.fetchProjects();
+      this.fetchOrganizations();
     }
   },
   methods: {
@@ -60,6 +64,14 @@ export default {
         },
       });
       this.projects = await res.json();
+    },
+    async fetchOrganizations() {
+      const res = await fetch('http://localhost:8000/api/organizations/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      this.organizations = await res.json();
     },
     async deleteProject(projectId) {
       if (!confirm('Are you sure you want to delete this project?')) return;

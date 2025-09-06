@@ -18,18 +18,28 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        if not is_user_premium(request.user) and Organization.objects.filter(owner=request.user).count() >= 1:
-            return Response(
-                {'detail': 'Free users are limited to one organization. Please upgrade to create more.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        return super().create(request, *args, **kwargs)
+    def get_queryset(self):
+        user = self.request.user
+        return self.queryset.filter(Q(owner=user) | Q(members=user)).distinct()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Projects owned by the user directly
+        # OR projects owned by an organization the user owns
+        # OR projects owned by an organization the user is a member of
+        return self.queryset.filter(
+            Q(user_owner=user) |
+            Q(org_owner__owner=user) |
+            Q(org_owner__members=user)
+        ).distinct()
 
     def create(self, request, *args, **kwargs):
         if not is_user_premium(request.user) and Project.objects.filter(user_owner=request.user).count() >= 5:
@@ -43,6 +53,12 @@ class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class TimeLogViewSet(viewsets.ModelViewSet):
     queryset = TimeLog.objects.all()

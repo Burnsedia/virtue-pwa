@@ -16,7 +16,15 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated, IsPremiumUser]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        if not is_user_premium(request.user) and Organization.objects.filter(owner=request.user).count() >= 1:
+            return Response(
+                {'detail': 'Free users are limited to one organization. Please upgrade to create more.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().create(request, *args, **kwargs)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -24,9 +32,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        if not is_user_premium(request.user) and Project.objects.filter(user_owner=request.user).count() >= 1:
+        if not is_user_premium(request.user) and Project.objects.filter(user_owner=request.user).count() >= 5:
             return Response(
-                {'detail': 'Free users are limited to one project. Please upgrade to create more.'},
+                {'detail': 'Free users are limited to 5 projects. Please upgrade to create more.'},
                 status=status.HTTP_403_FORBIDDEN
             )
         return super().create(request, *args, **kwargs)

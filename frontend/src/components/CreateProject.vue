@@ -6,7 +6,7 @@
     </button>
 
     <p v-if="!canCreateProject" class="text-warning text-sm mb-4">
-      Free users are limited to one project. Upgrade to create more.
+      Free users are limited to 5 projects. Upgrade to create more.
       <a href="/pricing" class="link link-primary">View Plans</a>
     </p>
 
@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     canCreateProject() {
-      return this.isPremium || this.userProjectsCount < 1;
+      return this.isPremium || this.userProjectsCount < 5;
     },
   },
   created() {

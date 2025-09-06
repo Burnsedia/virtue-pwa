@@ -17,15 +17,12 @@
           @dragover.prevent
           @drop="onDrop($event, 'todo')"
         >
-          <div
+          <IssueCard
             v-for="issue in getIssuesByStatus('todo')"
             :key="issue.id"
-            draggable="true"
+            :issue="issue"
             @dragstart="onDragStart($event, issue)"
-            class="bg-white p-3 mb-3 rounded shadow cursor-grab"
-          >
-            {{ issue.title }}
-          </div>
+          />
         </div>
       </div>
 
@@ -36,15 +33,12 @@
           @dragover.prevent
           @drop="onDrop($event, 'in_progress')"
         >
-          <div
+          <IssueCard
             v-for="issue in getIssuesByStatus('in_progress')"
             :key="issue.id"
-            draggable="true"
+            :issue="issue"
             @dragstart="onDragStart($event, issue)"
-            class="bg-white p-3 mb-3 rounded shadow cursor-grab"
-          >
-            {{ issue.title }}
-          </div>
+          />
         </div>
       </div>
 
@@ -55,15 +49,12 @@
           @dragover.prevent
           @drop="onDrop($event, 'done')"
         >
-          <div
+          <IssueCard
             v-for="issue in getIssuesByStatus('done')"
             :key="issue.id"
-            draggable="true"
+            :issue="issue"
             @dragstart="onDragStart($event, issue)"
-            class="bg-white p-3 mb-3 rounded shadow cursor-grab"
-          >
-            {{ issue.title }}
-          </div>
+          />
         </div>
       </div>
     </div>
@@ -71,7 +62,10 @@
 </template>
 
 <script>
+import IssueCard from "./IssueCard.vue";
+
 export default {
+  components: { IssueCard },
   data() {
     return {
       projects: [],
@@ -82,6 +76,7 @@ export default {
   created() {},
   mounted() {
     this.fetchProjects();
+    this.fetchIssues();
   },
   watch: {
     selectedProjectId() {

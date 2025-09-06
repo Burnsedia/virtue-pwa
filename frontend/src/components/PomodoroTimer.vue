@@ -9,9 +9,46 @@
     </div>
 
     <div class="mt-4">
-      <button @click="setWorkSession" class="btn">Work</button>
-      <button @click="setBreakSession" class="btn">Break</button>
+      <button @click="setSession('work')" :class="{ 'btn-active': sessionType === 'work' }" class="btn">Pomodoro</button>
+      <button @click="setSession('shortBreak')" :class="{ 'btn-active': sessionType === 'shortBreak' }" class="btn">Short Break</button>
+      <button @click="setSession('longBreak')" :class="{ 'btn-active': sessionType === 'longBreak' }" class="btn">Long Break</button>
     </div>
+
+    <div class="mt-8">
+      <button @click="showSettings = true" class="btn btn-ghost">Settings</button>
+    </div>
+
+    <div v-if="showSettings" class="modal modal-open">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Settings</h3>
+        
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Pomodoro Duration (minutes)</span>
+          </label>
+          <input type="number" v-model.number="settings.work" class="input input-bordered">
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Short Break Duration (minutes)</span>
+          </label>
+          <input type="number" v-model.number="settings.shortBreak" class="input input-bordered">
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Long Break Duration (minutes)</span>
+          </label>
+          <input type="number" v-model.number="settings.longBreak" class="input input-bordered">
+        </div>
+
+        <div class="modal-action">
+          <button @click="showSettings = false" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -20,8 +57,15 @@ export default {
   data() {
     return {
       timer: null,
-      time: 25 * 60, // Default to 25 minutes
-      isWorkSession: true,
+      time: 25 * 60, 
+      sessionType: 'work', // work, shortBreak, longBreak
+      pomodoros: 0,
+      showSettings: false,
+      settings: {
+        work: 25,
+        shortBreak: 5,
+        longBreak: 15,
+      }
     };
   },
   computed: {
@@ -40,10 +84,15 @@ export default {
         } else {
           this.pauseTimer();
           this.playSound();
-          if (this.isWorkSession) {
-            this.setBreakSession();
+          if (this.sessionType === 'work') {
+            this.pomodoros++;
+            if (this.pomodoros % 4 === 0) {
+              this.setSession('longBreak');
+            } else {
+              this.setSession('shortBreak');
+            }
           } else {
-            this.setWorkSession();
+            this.setSession('work');
           }
         }
       }, 1000);
@@ -54,16 +103,10 @@ export default {
     },
     resetTimer() {
       this.pauseTimer();
-      this.time = this.isWorkSession ? 25 * 60 : 5 * 60;
+      this.time = this.settings[this.sessionType] * 60;
     },
-    setWorkSession() {
-      this.isWorkSession = true;
-      this.time = 25 * 60;
-      this.resetTimer();
-    },
-    setBreakSession() {
-      this.isWorkSession = false;
-      this.time = 5 * 60;
+    setSession(type) {
+      this.sessionType = type;
       this.resetTimer();
     },
     playSound() {

@@ -1,100 +1,111 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <div class="flex justify-between">
-      <CreateProjectModal @created="fetchProjects" />
-      <AddTask
-        v-if="selectedProjectId"
-        :project-id="selectedProjectId"
-        @created="refreshTasks"
-      />
-    </div>
+    <div v-if="isPremium">
+      <div class="flex justify-between">
+        <CreateProjectModal @created="fetchProjects" />
+        <AddTask
+          v-if="selectedProjectId"
+          :project-id="selectedProjectId"
+          @created="refreshTasks"
+        />
+      </div>
 
-    <div class="flex items-center justify-between mb-4">
-      <select
-        v-model="selectedProjectId"
-        class="select select-bordered w-full"
-      >
-        <option disabled value="">-- Choose Project --</option>
-        <option
-          v-for="project in projects"
-          :key="project.id"
-          :value="project.id"
+      <div class="flex items-center justify-between mb-4">
+        <select
+          v-model="selectedProjectId"
+          class="select select-bordered w-full"
         >
-          {{ project.name }}
-        </option>
-      </select>
+          <option disabled value="">-- Choose Project --</option>
+          <option
+            v-for="project in projects"
+            :key="project.id"
+            :value="project.id"
+          >
+            {{ project.name }}
+          </option>
+        </select>
 
-      <button
+        <button
+          v-if="selectedProjectId"
+          class="btn btn-error btn-sm ml-4"
+          @click="deleteProject"
+        >
+          🗑 Delete
+        </button>
+      </div>
+
+      <div
         v-if="selectedProjectId"
-        class="btn btn-error btn-sm ml-4"
-        @click="deleteProject"
+        class="grid grid-cols-1 sm:grid-cols-2 gap-6"
       >
-        🗑 Delete
-      </button>
+        <div
+          class="bg-base-200 border border-secondary h-96 p-2"
+          @dragover.prevent
+          @drop="onDrop($event, 1)"
+        >
+          <h2 class="text-lg font-bold text-center">🔥 Urgent & Important</h2>
+          <IssueCard
+            v-for="issue in getIssuesByPriority(1)"
+            :key="issue.id"
+            :issue="issue"
+            draggable="true"
+            @dragstart="onDragStart($event, issue)"
+          />
+        </div>
+        <div
+          class="bg-base-200 border border-primary h-96 p-2"
+          @dragover.prevent
+          @drop="onDrop($event, 2)"
+        >
+          <h2 class="text-lg font-bold text-center">
+            ⚠️ Urgent & Not Important
+          </h2>
+          <IssueCard
+            v-for="issue in getIssuesByPriority(2)"
+            :key="issue.id"
+            :issue="issue"
+            draggable="true"
+            @dragstart="onDragStart($event, issue)"
+          />
+        </div>
+        <div
+          class="bg-base-200 border border-success h-96 p-2"
+          @dragover.prevent
+          @drop="onDrop($event, 3)"
+        >
+          <h2 class="text-lg font-bold text-center">
+            🌱 Not Urgent & Important
+          </h2>
+          <IssueCard
+            v-for="issue in getIssuesByPriority(3)"
+            :key="issue.id"
+            :issue="issue"
+            draggable="true"
+            @dragstart="onDragStart($event, issue)"
+          />
+        </div>
+        <div
+          class="bg-base-200 border border-alert h-96 p-2"
+          @dragover.prevent
+          @drop="onDrop($event, 4)"
+        >
+          <h2 class="text-lg font-bold text-center">
+            🧘 Not Urgent & Not Important
+          </h2>
+          <IssueCard
+            v-for="issue in getIssuesByPriority(4)"
+            :key="issue.id"
+            :issue="issue"
+            draggable="true"
+            @dragstart="onDragStart($event, issue)"
+          />
+        </div>
+      </div>
     </div>
-
-    <div
-      v-if="selectedProjectId"
-      class="grid grid-cols-1 sm:grid-cols-2 gap-6"
-    >
-      <div
-        class="bg-base-200 border border-secondary h-96 p-2"
-        @dragover.prevent
-        @drop="onDrop($event, 1)"
-      >
-        <h2 class="text-lg font-bold text-center">🔥 Urgent & Important</h2>
-        <IssueCard
-          v-for="issue in getIssuesByPriority(1)"
-          :key="issue.id"
-          :issue="issue"
-          @dragstart="onDragStart($event, issue)"
-        />
-      </div>
-      <div
-        class="bg-base-200 border border-primary h-96 p-2"
-        @dragover.prevent
-        @drop="onDrop($event, 2)"
-      >
-        <h2 class="text-lg font-bold text-center">
-          ⚠️ Urgent & Not Important
-        </h2>
-        <IssueCard
-          v-for="issue in getIssuesByPriority(2)"
-          :key="issue.id"
-          :issue="issue"
-          @dragstart="onDragStart($event, issue)"
-        />
-      </div>
-      <div
-        class="bg-base-200 border border-success h-96 p-2"
-        @dragover.prevent
-        @drop="onDrop($event, 3)"
-      >
-        <h2 class="text-lg font-bold text-center">
-          🌱 Not Urgent & Important
-        </h2>
-        <IssueCard
-          v-for="issue in getIssuesByPriority(3)"
-          :key="issue.id"
-          :issue="issue"
-          @dragstart="onDragStart($event, issue)"
-        />
-      </div>
-      <div
-        class="bg-base-200 border border-alert h-96 p-2"
-        @dragover.prevent
-        @drop="onDrop($event, 4)"
-      >
-        <h2 class="text-lg font-bold text-center">
-          🧘 Not Urgent & Not Important
-        </h2>
-        <IssueCard
-          v-for="issue in getIssuesByPriority(4)"
-          :key="issue.id"
-          :issue="issue"
-          @dragstart="onDragStart($event, issue)"
-        />
-      </div>
+    <div v-else class="text-center p-8">
+      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to access the Eisenhower Matrix</h2>
+      <p class="mb-4">This feature is available to premium subscribers only.</p>
+      <a href="/pricing" class="btn btn-primary">View Plans</a>
     </div>
   </div>
 </template>
@@ -103,9 +114,11 @@
 import AddTask from "./addTask.vue";
 import CreateProjectModal from "./CreateProject.vue";
 import IssueCard from "./IssueCard.vue";
+import authStatus from "../mixins/authStatus";
 
 export default {
   components: { CreateProjectModal, AddTask, IssueCard },
+  mixins: [authStatus],
   data() {
     return {
       projects: [],
@@ -115,17 +128,23 @@ export default {
   },
   created() {},
   mounted() {
-    this.fetchProjects();
-    this.fetchIssues();
+    if (this.isPremium) {
+      this.fetchProjects();
+      this.fetchIssues();
+    }
   },
   watch: {
     selectedProjectId() {
-      this.fetchIssues();
+      if (this.isPremium) {
+        this.fetchIssues();
+      }
     },
   },
   methods: {
     refreshTasks() {
-      this.fetchIssues();
+      if (this.isPremium) {
+        this.fetchIssues();
+      }
     },
     async fetchProjects() {
       const res = await fetch("http://localhost:8000/api/projects/", {

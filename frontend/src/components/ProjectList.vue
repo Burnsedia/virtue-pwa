@@ -1,37 +1,46 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <CreateProjectModal @created="fetchProjects" />
+    <div v-if="isPremium">
+      <CreateProjectModal @created="fetchProjects" />
 
-    <div class="overflow-x-auto">
-      <table class="table w-full">
-        <thead>
-          <tr>
-            <th>Project Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="project in projects" :key="project.id">
-            <td>{{ project.name }}</td>
-            <td>{{ project.description }}</td>
-            <td>
-              <button @click="deleteProject(project.id)" class="btn btn-error btn-sm">
-                🗑 Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="project in projects" :key="project.id">
+              <td>{{ project.name }}</td>
+              <td>{{ project.description }}</td>
+              <td>
+                <button @click="deleteProject(project.id)" class="btn btn-error btn-sm">
+                  🗑 Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div v-else class="text-center p-8">
+      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to manage Projects</h2>
+      <p class="mb-4">This feature is available to premium subscribers only.</p>
+      <a href="/pricing" class="btn btn-primary">View Plans</a>
     </div>
   </div>
 </template>
 
 <script>
 import CreateProjectModal from './CreateProject.vue';
+import authStatus from "../mixins/authStatus";
 
 export default {
   components: { CreateProjectModal },
+  mixins: [authStatus],
   data() {
     return {
       projects: [],
@@ -39,7 +48,9 @@ export default {
   },
   created() {},
   mounted() {
-    this.fetchProjects();
+    if (this.isPremium) {
+      this.fetchProjects();
+    }
   },
   methods: {
     async fetchProjects() {

@@ -1,71 +1,83 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <div class="flex items-center justify-between mb-4">
-      <select v-model="selectedProjectId" class="select select-bordered w-full">
-        <option disabled value="">-- Choose Project --</option>
-        <option v-for="project in projects" :key="project.id" :value="project.id">
-          {{ project.name }}
-        </option>
-      </select>
+    <div v-if="isPremium">
+      <div class="flex items-center justify-between mb-4">
+        <select v-model="selectedProjectId" class="select select-bordered w-full">
+          <option disabled value="">-- Choose Project --</option>
+          <option v-for="project in projects" :key="project.id" :value="project.id">
+            {{ project.name }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="selectedProjectId" class="grid grid-cols-3 gap-4">
+        <div class="bg-base-200 p-4 rounded-lg">
+          <h2 class="text-xl font-bold mb-4">To Do</h2>
+          <div
+            class="min-h-[200px]"
+            @dragover.prevent
+            @drop="onDrop($event, 'todo')"
+          >
+            <IssueCard
+              v-for="issue in getIssuesByStatus('todo')"
+              :key="issue.id"
+              :issue="issue"
+              draggable="true"
+              @dragstart="onDragStart($event, issue)"
+            />
+          </div>
+        </div>
+
+        <div class="bg-base-200 p-4 rounded-lg">
+          <h2 class="text-xl font-bold mb-4">In Progress</h2>
+          <div
+            class="min-h-[200px]"
+            @dragover.prevent
+            @drop="onDrop($event, 'in_progress')"
+          >
+            <IssueCard
+              v-for="issue in getIssuesByStatus('in_progress')"
+              :key="issue.id"
+              :issue="issue"
+              draggable="true"
+              @dragstart="onDragStart($event, issue)"
+            />
+          </div>
+        </div>
+
+        <div class="bg-base-200 p-4 rounded-lg">
+          <h2 class="text-xl font-bold mb-4">Done</h2>
+          <div
+            class="min-h-[200px]"
+            @dragover.prevent
+            @drop="onDrop($event, 'done')"
+          >
+            <IssueCard
+              v-for="issue in getIssuesByStatus('done')"
+              :key="issue.id"
+              :issue="issue"
+              draggable="true"
+              @dragstart="onDragStart($event, issue)"
+            />
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div v-if="selectedProjectId" class="grid grid-cols-3 gap-4">
-      <div class="bg-base-200 p-4 rounded-lg">
-        <h2 class="text-xl font-bold mb-4">To Do</h2>
-        <div
-          class="min-h-[200px]"
-          @dragover.prevent
-          @drop="onDrop($event, 'todo')"
-        >
-          <IssueCard
-            v-for="issue in getIssuesByStatus('todo')"
-            :key="issue.id"
-            :issue="issue"
-            @dragstart="onDragStart($event, issue)"
-          />
-        </div>
-      </div>
-
-      <div class="bg-base-200 p-4 rounded-lg">
-        <h2 class="text-xl font-bold mb-4">In Progress</h2>
-        <div
-          class="min-h-[200px]"
-          @dragover.prevent
-          @drop="onDrop($event, 'in_progress')"
-        >
-          <IssueCard
-            v-for="issue in getIssuesByStatus('in_progress')"
-            :key="issue.id"
-            :issue="issue"
-            @dragstart="onDragStart($event, issue)"
-          />
-        </div>
-      </div>
-
-      <div class="bg-base-200 p-4 rounded-lg">
-        <h2 class="text-xl font-bold mb-4">Done</h2>
-        <div
-          class="min-h-[200px]"
-          @dragover.prevent
-          @drop="onDrop($event, 'done')"
-        >
-          <IssueCard
-            v-for="issue in getIssuesByStatus('done')"
-            :key="issue.id"
-            :issue="issue"
-            @dragstart="onDragStart($event, issue)"
-          />
-        </div>
-      </div>
+    <div v-else class="text-center p-8">
+      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to access the Kanban Board</h2>
+      <p class="mb-4">This feature is available to premium subscribers only.</p>
+      <a href="/pricing" class="btn btn-primary">View Plans</a>
     </div>
   </div>
 </template>
 
 <script>
 import IssueCard from "./IssueCard.vue";
+import authStatus from "../mixins/authStatus";
 
 export default {
   components: { IssueCard },
+  mixins: [authStatus],
   data() {
     return {
       projects: [],
@@ -75,12 +87,16 @@ export default {
   },
   created() {},
   mounted() {
-    this.fetchProjects();
-    this.fetchIssues();
+    if (this.isPremium) {
+      this.fetchProjects();
+      this.fetchIssues();
+    }
   },
   watch: {
     selectedProjectId() {
-      this.fetchIssues();
+      if (this.isPremium) {
+        this.fetchIssues();
+      }
     },
   },
   methods: {

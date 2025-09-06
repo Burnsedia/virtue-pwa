@@ -55,7 +55,7 @@ export default {
   methods: {
     async fetchUserProjectsCount() {
       if (!this.isLoggedIn) return;
-      const res = await fetch('http://localhost:8000/api/projects/?user_owner__email=' + localStorage.getItem('email'), {
+      const res = await fetch('http://localhost:8000/api/projects/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

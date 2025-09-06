@@ -53,7 +53,7 @@ export default {
   methods: {
     async fetchUserOrganizationsCount() {
       if (!this.isLoggedIn) return;
-      const res = await fetch('http://localhost:8000/api/organizations/?owner__email=' + localStorage.getItem('email'), {
+      const res = await fetch('http://localhost:8000/api/organizations/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -67,10 +67,16 @@ export default {
         return;
       }
 
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You must be logged in to create an organization.');
+        return;
+      }
+
       const res = await fetch('http://localhost:8000/api/organizations/', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

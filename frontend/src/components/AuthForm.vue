@@ -75,6 +75,18 @@ export default {
           const data = await res.json();
           if (this.isLogin) {
             localStorage.setItem('token', data.auth_token);
+            // Fetch and store user's premium status
+            const userStatusRes = await fetch('http://localhost:8000/api/users/me/subscription_status/', {
+              headers: {
+                Authorization: `Bearer ${data.auth_token}`,
+              },
+            });
+            const userStatusData = await userStatusRes.json();
+            localStorage.setItem('userStatus', JSON.stringify({
+              isLoggedIn: true,
+              isPremium: userStatusData.is_premium,
+            }));
+
             alert('Login successful!');
             window.location.href = '/'; // Redirect to home page
           } else {

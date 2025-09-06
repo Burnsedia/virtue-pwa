@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "djoser",
     "api",
     "djstripe",
+    "subscription",
 ]
 
 STRIPE_SECRET_KEY = "YOUR_STRIPE_SECRET_KEY"

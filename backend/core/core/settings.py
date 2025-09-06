@@ -50,6 +50,11 @@ STRIPE_PUBLISHABLE_KEY = "YOUR_STRIPE_PUBLISHABLE_KEY"
 
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 
+AUTHENTICATION_BACKENDS = [
+    'api.auth_backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -81,19 +86,19 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 DJOSER = {
-    "LOGIN_FIELD": "email",
-    "USER_CREATE_PASSWORD_RETYPE": True,
+    "LOGIN_FIELD": "username",
+    "USER_CREATE_PASSWORD_RETYPE": False,
     "SEND_ACTIVATION_EMAIL": False,
     "SEND_CONFIRMATION_EMAIL": False,
     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
     "USERNAME_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
     "ACTIVATION_URL": "activate/{uid}/{token}",
     "SERIALIZERS": {
-        # You can override these later if needed
-        "user_create": "djoser.serializers.UserCreateSerializer",
+        "user_create": "api.djoser_serializers.UserCreateSerializer",
         "user": "djoser.serializers.UserSerializer",
         "current_user": "djoser.serializers.UserSerializer",
     },
+    "USER_ID_FIELD": "id",
 }
 
 # Database

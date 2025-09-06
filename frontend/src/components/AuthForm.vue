@@ -51,6 +51,7 @@ export default {
         if (res.ok) {
           const data = await res.json();
           localStorage.setItem('token', data.access);
+          console.log('Token set in localStorage:', data.access);
 
           // Fetch user details to get user ID
           const userDetailsRes = await fetch('http://localhost:8000/auth/users/me/', {
@@ -73,11 +74,13 @@ export default {
             isPremium: userStatusData.is_premium,
             userId: userId, // Store user ID
           }));
+          console.log('User status set in localStorage:', localStorage.getItem('userStatus'));
 
           alert('Login successful!');
           window.location.assign('/'); // Redirect to home page
         } else {
           const errorData = await res.json();
+          console.error('Login error:', errorData);
           alert(`Error: ${JSON.stringify(errorData)}`);
         }
       } catch (error) {

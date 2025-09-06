@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <div v-if="isPremium">
+    <div>
       <div class="flex items-center justify-between mb-4">
         <select v-model="selectedProjectId" class="select select-bordered w-full">
           <option disabled value="">-- Choose Project --</option>
@@ -63,11 +63,6 @@
         </div>
       </div>
     </div>
-    <div v-else class="text-center p-8">
-      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to access the Kanban Board</h2>
-      <p class="mb-4">This feature is available to premium subscribers only.</p>
-      <a href="/pricing" class="btn btn-primary">View Plans</a>
-    </div>
   </div>
 </template>
 
@@ -87,16 +82,12 @@ export default {
   },
   created() {},
   mounted() {
-    if (this.isPremium) {
-      this.fetchProjects();
-      this.fetchIssues();
-    }
+    this.fetchProjects();
+    this.fetchIssues();
   },
   watch: {
     selectedProjectId() {
-      if (this.isPremium) {
-        this.fetchIssues();
-      }
+      this.fetchIssues();
     },
   },
   methods: {

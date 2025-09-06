@@ -24,5 +24,4 @@ urlpatterns = [
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("stripe/", include("djstripe.urls")),
-    path("subscription/", include("subscription.urls")),
 ]

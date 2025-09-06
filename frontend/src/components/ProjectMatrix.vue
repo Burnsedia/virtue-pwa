@@ -37,42 +37,62 @@
       v-if="selectedProjectId"
       class="grid grid-cols-1 sm:grid-cols-2 gap-6"
     >
-      <div class="bg-base-200 border border-secondary h-96 p-2">
+      <div
+        class="bg-base-200 border border-secondary h-96 p-2"
+        @dragover.prevent
+        @drop="onDrop($event, 1)"
+      >
         <h2 class="text-lg font-bold text-center">🔥 Urgent & Important</h2>
-        <Task
-          :key="taskKey"
-          :priorities="[1]"
-          :project-id="selectedProjectId"
+        <IssueCard
+          v-for="issue in getIssuesByPriority(1)"
+          :key="issue.id"
+          :issue="issue"
+          @dragstart="onDragStart($event, issue)"
         />
       </div>
-      <div class="bg-base-200 border border-primary h-96 p-2">
+      <div
+        class="bg-base-200 border border-primary h-96 p-2"
+        @dragover.prevent
+        @drop="onDrop($event, 2)"
+      >
         <h2 class="text-lg font-bold text-center">
           ⚠️ Urgent & Not Important
         </h2>
-        <Task
-          :key="taskKey"
-          :priorities="[2]"
-          :project-id="selectedProjectId"
+        <IssueCard
+          v-for="issue in getIssuesByPriority(2)"
+          :key="issue.id"
+          :issue="issue"
+          @dragstart="onDragStart($event, issue)"
         />
       </div>
-      <div class="bg-base-200 border border-success h-96 p-2">
+      <div
+        class="bg-base-200 border border-success h-96 p-2"
+        @dragover.prevent
+        @drop="onDrop($event, 3)"
+      >
         <h2 class="text-lg font-bold text-center">
           🌱 Not Urgent & Important
         </h2>
-        <Task
-          :key="taskKey"
-          :priorities="[3]"
-          :project-id="selectedProjectId"
+        <IssueCard
+          v-for="issue in getIssuesByPriority(3)"
+          :key="issue.id"
+          :issue="issue"
+          @dragstart="onDragStart($event, issue)"
         />
       </div>
-      <div class="bg-base-200 border border-alert h-96 p-2">
+      <div
+        class="bg-base-200 border border-alert h-96 p-2"
+        @dragover.prevent
+        @drop="onDrop($event, 4)"
+      >
         <h2 class="text-lg font-bold text-center">
           🧘 Not Urgent & Not Important
         </h2>
-        <Task
-          :key="taskKey"
-          :priorities="[4]"
-          :project-id="selectedProjectId"
+        <IssueCard
+          v-for="issue in getIssuesByPriority(4)"
+          :key="issue.id"
+          :issue="issue"
+          @dragstart="onDragStart($event, issue)"
         />
       </div>
     </div>
@@ -80,26 +100,31 @@
 </template>
 
 <script>
-import Task from "./task.vue";
 import AddTask from "./addTask.vue";
 import CreateProjectModal from "./CreateProject.vue";
+import IssueCard from "./IssueCard.vue";
 
 export default {
-  components: { Task, CreateProjectModal, AddTask },
+  components: { CreateProjectModal, AddTask, IssueCard },
   data() {
     return {
       projects: [],
       selectedProjectId: "",
-      taskKey: 0,
+      issues: [],
     };
   },
   created() {},
   mounted() {
     this.fetchProjects();
   },
+  watch: {
+    selectedProjectId() {
+      this.fetchIssues();
+    },
+  },
   methods: {
     refreshTasks() {
-      this.taskKey++;
+      this.fetchIssues();
     },
     async fetchProjects() {
       const res = await fetch("http://localhost:8000/api/projects/", {
@@ -128,6 +153,42 @@ export default {
         this.fetchProjects();
       } else {
         alert("Error deleting project.");
+      }
+    },
+    async fetchIssues() {
+      if (!this.selectedProjectId) return;
+      const res = await fetch(
+        `http://localhost:8000/api/issues/?project=${this.selectedProjectId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      this.issues = await res.json();
+    },
+    getIssuesByPriority(priority) {
+      return this.issues.filter((issue) => issue.priority === priority);
+    },
+    onDragStart(event, issue) {
+      event.dataTransfer.setData("application/json", JSON.stringify(issue));
+    },
+    async onDrop(event, newPriority) {
+      const issueData = JSON.parse(
+        event.dataTransfer.getData("application/json")
+      );
+      const issue = this.issues.find((i) => i.id === issueData.id);
+      if (issue) {
+        issue.priority = newPriority;
+        // Update the issue priority in the backend
+        await fetch(`http://localhost:8000/api/issues/${issue.id}/`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ priority: newPriority }),
+        });
       }
     },
   },

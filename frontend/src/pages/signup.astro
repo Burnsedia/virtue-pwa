@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AuthForm from '../components/AuthForm.vue';
+---
+
+<Layout title="Sign Up">
+  <main>
+    <AuthForm client:load :isLogin="false" />
+  </main>
+</Layout>

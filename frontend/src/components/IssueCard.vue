@@ -2,7 +2,7 @@
   <div
     draggable="true"
     @dragstart="onDragStart($event, issue)"
-    class="bg-white p-3 mb-3 rounded shadow cursor-grab"
+    class="bg-base-100 text-base-content p-3 mb-3 rounded shadow cursor-grab"
   >
     {{ issue.title }}
   </div>

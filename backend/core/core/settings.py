@@ -42,7 +42,13 @@ INSTALLED_APPS = [
     "corsheaders",
     "djoser",
     "api",
+    "djstripe",
 ]
+
+STRIPE_SECRET_KEY = "YOUR_STRIPE_SECRET_KEY"
+STRIPE_PUBLISHABLE_KEY = "YOUR_STRIPE_PUBLISHABLE_KEY"
+
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

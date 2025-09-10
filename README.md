@@ -13,3 +13,13 @@
 | Github Intergration       | Sync All Your Isses in one Place                 |
 
 # Project Planning for people with ADHD
+
+
+## PWA 
+- unlimited Offine projects
+- unlimited Offline Orgizations
+- unlimited Issues
+- Free Account Liminted to one Orgizations
+- free account Liminted to 5 projects
+- free account has unlimited issues per project
+

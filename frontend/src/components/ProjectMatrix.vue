@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <div >
+    <div>
       <div class="flex justify-between">
         <CreateProjectModal @created="fetchProjects" />
         <AddTask
@@ -102,11 +102,6 @@
         </div>
       </div>
     </div>
-    <div  class="text-center p-8">
-      <h2 class="text-2xl font-bold mb-4">Upgrade to Premium to access the Eisenhower Matrix</h2>
-      <p class="mb-4">This feature is available to premium subscribers only.</p>
-      <a href="/pricing" class="btn btn-primary">View Plans</a>
-    </div>
   </div>
 </template>
 
@@ -128,31 +123,34 @@ export default {
   },
   created() {},
   mounted() {
-    if (this.isPremium) {
-      this.fetchProjects();
-      this.fetchIssues();
-    }
+    this.fetchProjects();
   },
   watch: {
-    selectedProjectId() {
-      if (this.isPremium) {
+    selectedProjectId(newVal) {
+      if (newVal) {
         this.fetchIssues();
       }
     },
   },
   methods: {
     refreshTasks() {
-      if (this.isPremium) {
-        this.fetchIssues();
-      }
+      this.fetchIssues();
     },
     async fetchProjects() {
-      const res = await fetch("http://localhost:8000/api/projects/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      this.projects = await res.json();
+      try {
+        const res = await fetch("http://localhost:8000/api/projects/", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const projects = await res.json();
+        this.projects = projects;
+        if (projects.length > 0) {
+          this.selectedProjectId = projects[0].id;
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
     },
     async deleteProject() {
       if (!confirm("Are you sure you want to delete this project?")) return;
@@ -177,15 +175,19 @@ export default {
     },
     async fetchIssues() {
       if (!this.selectedProjectId) return;
-      const res = await fetch(
-        `http://localhost:8000/api/issues/?project=${this.selectedProjectId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      this.issues = await res.json();
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/issues/?project=${this.selectedProjectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        this.issues = await res.json();
+      } catch (error) {
+        console.error("Error fetching issues:", error);
+      }
     },
     getIssuesByPriority(priority) {
       return this.issues.filter((issue) => issue.priority === priority);

@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import OrganizationList from '../components/OrganizationList.vue';
+---
+
+<Layout title="Organizations">
+  <main>
+    <OrganizationList client:load />
+  </main>
+</Layout>

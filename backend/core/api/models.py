@@ -45,6 +45,7 @@ class Issue(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
     estimate_minutes = models.PositiveIntegerField(default=0)
     github_issue_number = models.IntegerField(null=True, blank=True)
+    # This is a comment to force makemigrations to run
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issues', null=True, blank=True)
 
     def __str__(self):

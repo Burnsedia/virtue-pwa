@@ -83,33 +83,46 @@ export default {
   created() {},
   mounted() {
     this.fetchProjects();
-    this.fetchIssues();
   },
   watch: {
-    selectedProjectId() {
-      this.fetchIssues();
+    selectedProjectId(newVal) {
+      if (newVal) {
+        this.fetchIssues();
+      }
     },
   },
   methods: {
     async fetchProjects() {
-      const res = await fetch('http://localhost:8000/api/projects/', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      this.projects = await res.json();
-    },
-    async fetchIssues() {
-      if (!this.selectedProjectId) return;
-      const res = await fetch(
-        `http://localhost:8000/api/issues/?project=${this.selectedProjectId}`,
-        {
+      try {
+        const res = await fetch('http://localhost:8000/api/projects/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
+        });
+        const projects = await res.json();
+        this.projects = projects;
+        if (projects.length > 0) {
+          this.selectedProjectId = projects[0].id;
         }
-      );
-      this.issues = await res.json();
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    },
+    async fetchIssues() {
+      if (!this.selectedProjectId) return;
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/issues/?project=${this.selectedProjectId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        this.issues = await res.json();
+      } catch (error) {
+        console.error('Error fetching issues:', error);
+      }
     },
     getIssuesByStatus(status) {
       return this.issues.filter((issue) => issue.status === status);

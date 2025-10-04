@@ -38,7 +38,8 @@ export default {
       clients: [],
     };
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchClients();
   },
   methods: {

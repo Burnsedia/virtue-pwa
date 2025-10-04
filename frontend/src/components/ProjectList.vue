@@ -48,6 +48,7 @@ import CreateProjectModal from './CreateProject.vue';
 import CreateOrganizationModal from './CreateOrganizationModal.vue';
 import ProjectReport from './ProjectReport.vue';
 import authStatus from "../mixins/authStatus";
+import { db } from '../lib/db';
 
 export default {
   components: { CreateProjectModal, CreateOrganizationModal, ProjectReport },
@@ -62,41 +63,66 @@ export default {
   },
   created() {},
   mounted() {
-    this.fetchProjects();
-    this.fetchOrganizations();
+    this.loadData();
   },
   methods: {
+    async loadData() {
+      // Load from IndexedDB first
+      this.projects = await db.getAll('projects');
+      this.organizations = await db.getAll('organizations');
+
+      // Then fetch from network
+      this.fetchProjects();
+      this.fetchOrganizations();
+    },
     async fetchProjects() {
-      const res = await fetch('http://localhost:8000/api/projects/', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      this.projects = await res.json();
+      try {
+        const res = await fetch('http://localhost:8000/api/projects/', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const projects = await res.json();
+        this.projects = projects;
+        await db.setAll('projects', projects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
     },
     async fetchOrganizations() {
-      const res = await fetch('http://localhost:8000/api/organizations/', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      this.organizations = await res.json();
+      try {
+        const res = await fetch('http://localhost:8000/api/organizations/', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const organizations = await res.json();
+        this.organizations = organizations;
+        await db.setAll('organizations', organizations);
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      }
     },
     async deleteProject(projectId) {
       if (!confirm('Are you sure you want to delete this project?')) return;
 
-      const res = await fetch(`http://localhost:8000/api/projects/${projectId}/`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      try {
+        const res = await fetch(`http://localhost:8000/api/projects/${projectId}/`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-      if (res.ok) {
-        alert('Project deleted.');
-        this.fetchProjects();
-      } else {
-        alert('Error deleting project.');
+        if (res.ok) {
+          alert('Project deleted.');
+          await db.delete('projects', projectId);
+          this.projects = this.projects.filter(p => p.id !== projectId);
+        } else {
+          alert('Error deleting project.');
+        }
+      } catch (error) {
+        console.error('Error deleting project:', error);
       }
     },
   },

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'virtue-pwa-cache-v2';
+const CACHE_NAME = 'virtue-pwa-cache-v3';
 const urlsToCache = [
   '/',
   '/styles/global.css',
@@ -12,6 +12,9 @@ const urlsToCache = [
   '/signin',
   '/signup',
   '/forgot-password',
+  '/clients',
+  '/invoices',
+  '/pricing',
   // Add other critical assets like images, fonts, etc.
   // '/images/logo.png',
   // '/fonts/myfont.woff2',

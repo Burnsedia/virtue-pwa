@@ -45,7 +45,8 @@ export default {
       clients: [],
     };
   },
-  created() {
+  created() {},
+  mounted() {
     this.fetchInvoices();
     this.fetchClients();
   },

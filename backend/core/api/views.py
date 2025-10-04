@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from djstripe.models import Product, Price
 import stripe
-from django.db.models import Q # Add this import
+from django.db.models import Q, Sum, F
 
 from .models import Organization, Project, Issue, TimeLog
 from .serializers import *
@@ -121,4 +121,29 @@ class UserSubscriptionStatusView(APIView):
     def get(self, request, format=None):
         is_premium = is_user_premium(request.user)
         return Response({'is_premium': is_premium})
+
+class ProjectReportViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['get'])
+    def get_report(self, request, pk=None):
+        try:
+            project = Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Calculate total time spent on the project
+        total_time_spent = TimeLog.objects.filter(issue__project=project).aggregate(
+            total_duration=Sum(F('end_time') - F('start_time'))
+        )['total_duration']
+
+        # Calculate time spent per issue
+        time_per_issue = TimeLog.objects.filter(issue__project=project).values('issue__title').annotate(
+            total_duration=Sum(F('end_time') - F('start_time'))
+        )
+
+        return Response({
+            'total_time_spent': total_time_spent,
+            'time_per_issue': time_per_issue,
+        })
 

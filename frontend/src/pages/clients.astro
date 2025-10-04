@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ClientList from '../components/ClientList.vue';
+---
+
+<Layout title="Clients">
+  <main>
+    <ClientList client:load />
+  </main>
+</Layout>

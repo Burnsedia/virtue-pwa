@@ -1,6 +1,21 @@
 from rest_framework import serializers
-from .models import Organization, Project, Issue, TimeLog, Client, Invoice
+from .models import Organization, Project, Issue, TimeLog, Client, Invoice, Profile
 from djstripe.models import Product, Price
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'profile')
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:

@@ -7,10 +7,11 @@ router.register('organizations', OrganizationViewSet)
 router.register('projects', ProjectViewSet)
 router.register('issues', IssueViewSet)
 router.register('timelogs', TimeLogViewSet)
+router.register('reports', ProjectReportViewSet, basename='reports')
+#TODO: these stripe API end points may not be needed
 router.register('products', SubscriptionProductViewSet)
 router.register('prices', SubscriptionPriceViewSet)
 router.register('checkout', CheckoutViewSet, basename='checkout')
-router.register('reports', ProjectReportViewSet, basename='reports')
 
 urlpatterns = [
     path('', include(router.urls)),

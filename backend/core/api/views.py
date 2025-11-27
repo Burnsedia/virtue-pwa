@@ -8,7 +8,7 @@ from djstripe.models import Product, Price
 import stripe
 from django.db.models import Q, Sum, F
 
-from .models import Organization, Project, Issue, TimeLog, Client, Invoice
+from .models import Organization, Project, Issue, TimeLog
 from .serializers import *
 from .permissions import IsPremiumUser, is_user_premium
 
@@ -147,25 +147,4 @@ class ProjectReportViewSet(viewsets.ViewSet):
             'time_per_issue': time_per_issue,
         })
 
-class ClientViewSet(viewsets.ModelViewSet):
-    queryset = Client.objects.all()
-    serializer_class = ClientSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-class InvoiceViewSet(viewsets.ModelViewSet):
-    queryset = Invoice.objects.all()
-    serializer_class = InvoiceSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 

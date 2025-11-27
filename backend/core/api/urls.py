@@ -11,8 +11,6 @@ router.register('products', SubscriptionProductViewSet)
 router.register('prices', SubscriptionPriceViewSet)
 router.register('checkout', CheckoutViewSet, basename='checkout')
 router.register('reports', ProjectReportViewSet, basename='reports')
-router.register('clients', ClientViewSet)
-router.register('invoices', InvoiceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

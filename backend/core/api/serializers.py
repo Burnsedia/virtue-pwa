@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Organization, Project, Issue, TimeLog, Client, Invoice, Profile
+from .models import Organization, Project, Issue, TimeLog,  Profile
 from djstripe.models import Product, Price
 from django.contrib.auth import get_user_model
 
@@ -49,13 +49,4 @@ class PriceSerializer(serializers.ModelSerializer):
         model = Price
         fields = '__all__'
 
-class ClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Client
-        fields = '__all__'
-
-class InvoiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Invoice
-        fields = '__all__'
 

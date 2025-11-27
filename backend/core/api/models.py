@@ -7,7 +7,6 @@ User = get_user_model()
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_client = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
@@ -29,23 +28,12 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
-class Client(models.Model):
-    name = models.CharField(max_length=255)
-    contact_person = models.CharField(max_length=255, blank=True)
-    email = models.EmailField(blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-    notes = models.TextField(blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clients')
-
-    def __str__(self):
-        return self.name
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     user_owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     org_owner = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.CASCADE)
-    client = models.ForeignKey(Client, null=True, blank=True, on_delete=models.SET_NULL, related_name='projects')
 
     def clean(self):
         if not self.user_owner and not self.org_owner:
@@ -93,19 +81,3 @@ class TimeLog(models.Model):
             return (self.end_time - self.start_time).total_seconds() // 60
         return None
 
-class Invoice(models.Model):
-    STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('sent', 'Sent'),
-        ('paid', 'Paid'),
-        ('overdue', 'Overdue'),
-    ]
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='invoices')
-    projects = models.ManyToManyField(Project, related_name='invoices')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    due_date = models.DateField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
-
-    def __str__(self):
-        return f"Invoice for {self.client.name} - {self.amount}"

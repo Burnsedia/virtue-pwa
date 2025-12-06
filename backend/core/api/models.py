@@ -28,6 +28,7 @@ class Organization(models.Model):
     members = models.ManyToManyField(User, related_name='organizations')
 
     def __str__(self):
+        return self.name
 
 #TODO: Refactor to allow for parent and child project
 class Project(models.Model):

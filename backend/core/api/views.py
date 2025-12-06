@@ -66,6 +66,11 @@ class TimeLogViewSet(viewsets.ModelViewSet):
     queryset = TimeLog.objects.all()
     serializer_class = TimeLogSerializer
 
+    def get_queryset(self):
+        return self.queryset.filter(owner=self.request.user)
+
+
+
 class ProjectReportViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -148,5 +153,3 @@ class UserSubscriptionStatusView(APIView):
     def get(self, request, format=None):
         is_premium = is_user_premium(request.user)
         return Response({'is_premium': is_premium})
-
-

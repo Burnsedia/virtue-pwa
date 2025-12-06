@@ -50,10 +50,6 @@ STRIPE_PUBLISHABLE_KEY = "YOUR_STRIPE_PUBLISHABLE_KEY"
 
 DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 
-AUTHENTICATION_BACKENDS = [
-    'api.auth_backends.EmailOrUsernameModelBackend',
-    'django.contrib.auth.backends.ModelBackend',
-]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

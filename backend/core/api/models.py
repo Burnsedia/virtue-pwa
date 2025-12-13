@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -10,17 +9,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-#TODO: Move to signals file
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-#TODO: Move to signals file
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
 
 class Organization(models.Model):
     name = models.CharField(max_length=255)

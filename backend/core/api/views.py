@@ -81,21 +81,25 @@ class ProjectReportViewSet(viewsets.ViewSet):
             return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Calculate total time spent on the project
-        total_time_spent = TimeLog.objects.filter(issue__project=project).aggregate(
-            total_duration=Sum(F('end_time') - F('start_time'))
-        )['total_duration']
+        timelogs = TimeLog.objects.filter(issue__project=project).exclude(end_time__isnull=True)
+        total_time_spent = sum((log.end_time - log.start_time).total_seconds() for log in timelogs)
 
         # Calculate time spent per issue
-        time_per_issue = TimeLog.objects.filter(issue__project=project).values('issue__title').annotate(
-            total_duration=Sum(F('end_time') - F('start_time'))
-        )
+        time_per_issue = []
+        for issue in project.issue_set.all():
+            issue_timelogs = timelogs.filter(issue=issue)
+            issue_time = sum((log.end_time - log.start_time).total_seconds() for log in issue_timelogs)
+            if issue_time > 0:
+                time_per_issue.append({
+                    'issue_title': issue.title,
+                    'total_duration_seconds': issue_time
+                })
 
         return Response({
             'total_time_spent': total_time_spent,
             'time_per_issue': time_per_issue,
         })
 
-#TODO: Refactor to use this best preactis
 class SubscriptionProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(active=True)
     serializer_class = ProductSerializer
@@ -120,8 +124,8 @@ class CheckoutViewSet(viewsets.ViewSet):
                     },
                 ],
                 mode='subscription',
-                success_url='http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url='http://localhost:3000/cancel',
+                success_url=settings.STRIPE_SUCCESS_URL + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=settings.STRIPE_CANCEL_URL,
                 # customer_email=request.user.email, # Uncomment if user is authenticated
             )
             return Response({'sessionId': checkout_session.id})
@@ -140,7 +144,7 @@ class CheckoutViewSet(viewsets.ViewSet):
         try:
             portalSession = stripe.billing_portal.Session.create(
                 customer=customer_id,
-                return_url='http://localhost:4321/settings', # Frontend URL to return to
+                return_url=settings.STRIPE_PORTAL_RETURN_URL, # Frontend URL to return to
             )
             return Response({'url': portalSession.url})
         except Exception as e:

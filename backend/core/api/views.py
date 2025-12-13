@@ -61,13 +61,12 @@ class IssueViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-#TODO: Refactor to only show logs owned by user
 class TimeLogViewSet(viewsets.ModelViewSet):
     queryset = TimeLog.objects.all()
     serializer_class = TimeLogSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+        return self.queryset.filter(user=self.request.user)
 
 
 

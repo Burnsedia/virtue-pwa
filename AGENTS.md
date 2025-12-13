@@ -7,6 +7,9 @@
 - **Build**: `npm run build` (includes `astro check`)
 - **Preview**: `npm run preview`
 - **Mock API**: `npm run api` (json-server on port 3000)
+- **Run tests**: `npm run test`
+- **Run tests once**: `npm run test:run`
+- **Run tests with UI**: `npm run test:ui`
 
 ### Backend (Django)
 - **Development**: `python manage.py runserver`
@@ -78,6 +81,12 @@
 - Backend: Django apps in `/core/api/`
 - Static assets: `/public/` directory
 - Configuration: Root-level config files (astro.config.mjs, etc.)
+
+### Testing
+- **Backend**: Django test suite with `python manage.py test`
+- **Frontend**: Vitest with Vue Test Utils
+- **Coverage**: Aim for >80% coverage on critical paths
+- **Test Types**: Unit tests, integration tests, API tests, component tests
 
 ### Git Workflow
 - Feature branches from main

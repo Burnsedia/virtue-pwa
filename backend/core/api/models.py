@@ -45,7 +45,6 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-#TODO: Refactor to allow for parent and child issues
 class Issue(models.Model):
     PRIORITY_CHOICES = [
         (1, "🔥 Urgent & Important"),
@@ -59,14 +58,29 @@ class Issue(models.Model):
         ('done', 'Done'),
     ]
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subissues')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=3)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
     estimate_minutes = models.PositiveIntegerField(default=0)
     github_issue_number = models.IntegerField(null=True, blank=True)
-    # This is a comment to force makemigrations to run
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issues', null=True, blank=True)
+
+    def clean(self):
+        if self.parent and self.parent == self:
+            raise ValidationError("Issue cannot be its own parent.")
+        if self.parent and self.parent.project != self.project:
+            raise ValidationError("Parent issue must belong to the same project.")
+
+    def get_descendants(self):
+        """Get all descendant issues (children, grandchildren, etc.)"""
+        descendants = []
+        subissues = self.subissues.all()
+        for subissue in subissues:
+            descendants.append(subissue)
+            descendants.extend(subissue.get_descendants())
+        return descendants
 
     def __str__(self):
         return self.title

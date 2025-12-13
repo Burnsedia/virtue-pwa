@@ -18,18 +18,29 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
-#TODO: Refactor to allow for parent and child project
 class Project(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     user_owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     org_owner = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subprojects')
 
     def clean(self):
         if not self.user_owner and not self.org_owner:
             raise ValidationError("Project must have a user or org owner.")
         if self.user_owner and self.org_owner:
             raise ValidationError("Project can't have both a user and org owner.")
+        if self.parent and self.parent == self:
+            raise ValidationError("Project cannot be its own parent.")
+
+    def get_descendants(self):
+        """Get all descendant projects (children, grandchildren, etc.)"""
+        descendants = []
+        subprojects = self.subprojects.all()
+        for subproject in subprojects:
+            descendants.append(subproject)
+            descendants.extend(subproject.get_descendants())
+        return descendants
 
     def __str__(self):
         return self.name

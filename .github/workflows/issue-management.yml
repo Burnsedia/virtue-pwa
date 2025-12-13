@@ -1,0 +1,95 @@
+name: Issue Management
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled, closed]
+  pull_request:
+    types: [opened, ready_for_review, review_requested, closed]
+
+jobs:
+  issue-labeled:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'labeled'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Handle priority labels
+      if: startsWith(github.event.label.name, 'priority/')
+      run: |
+        echo "Issue prioritized: ${{ github.event.label.name }}"
+
+    - name: Handle bug labels
+      if: github.event.label.name == 'bug'
+      run: |
+        echo "Bug reported - consider adding to sprint"
+
+    - name: Handle feature labels
+      if: github.event.label.name == 'enhancement'
+      run: |
+        echo "Feature requested - consider for roadmap"
+
+  pr-opened:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Welcome PR author
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `Thank you for your contribution! 🎉
+
+          ## Pull Request Checklist
+          - [ ] Tests are included and passing
+          - [ ] Code follows project conventions
+          - [ ] Documentation is updated if needed
+          - [ ] Breaking changes are clearly marked
+
+          Our CI/CD pipeline will automatically run tests and quality checks.`
+          })
+
+  pr-merged:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Celebrate merged PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `🎉 This PR has been merged! Thank you for your contribution.
+
+          The changes will be automatically deployed according to our deployment workflow.`
+          })
+
+  stale-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Close stale issues
+      uses: actions/stale@v8
+      with:
+        days-before-stale: 30
+        days-before-close: 7
+        stale-issue-message: |
+          This issue has been automatically marked as stale because it has not had recent activity. It will be closed in 7 days if no further activity occurs.
+
+          If this issue is still relevant, please add a comment or update the issue.
+        close-issue-message: 'This issue has been automatically closed due to inactivity.'
+        exempt-issue-labels: 'pinned,security,bug,enhancement'

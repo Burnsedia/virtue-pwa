@@ -1,0 +1,65 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run weekly on Mondays at 8 AM UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update Python dependencies
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Update pip dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip-tools
+        pip-compile --upgrade requirements.in
+      continue-on-error: true
+
+    - name: Update Node.js dependencies
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Update npm dependencies
+      run: |
+        cd frontend
+        npm update
+        npm audit fix
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          chore: update dependencies
+
+          - Updated Python dependencies
+          - Updated Node.js dependencies
+          - Fixed security vulnerabilities
+        title: 'chore: update dependencies'
+        body: |
+          This PR updates project dependencies to their latest versions.
+
+          ## Changes
+          - Updated Python dependencies in `backend/requirements.txt`
+          - Updated Node.js dependencies in `frontend/package.json`
+          - Fixed security vulnerabilities where possible
+
+          ## Testing
+          - Run the full CI/CD pipeline to ensure compatibility
+        branch: automated/dependency-updates
+        delete-branch: true

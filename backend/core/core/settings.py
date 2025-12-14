@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "djstripe",
     "djoser",
     "api",
-    "djstripe",
 ]
 
 STRIPE_SECRET_KEY = "YOUR_STRIPE_SECRET_KEY"

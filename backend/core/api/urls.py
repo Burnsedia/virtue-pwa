@@ -8,12 +8,20 @@ router.register('projects', ProjectViewSet)
 router.register('issues', IssueViewSet)
 router.register('timelogs', TimeLogViewSet)
 router.register('reports', ProjectReportViewSet, basename='reports')
-router.register('products', SubscriptionProductViewSet)
-router.register('prices', SubscriptionPriceViewSet)
-router.register('checkout', CheckoutViewSet, basename='checkout')
+
+"""
+I am reading about the dj-stripe api to make sure this is SubscriptionProductViewSet
+these are AI gen and I do not trust these api end points
+
+I am commeting out these api end points for now
+"""
+
+# router.register('products', SubscriptionProductViewSet)
+# router.register('prices', SubscriptionPriceViewSet)
+# router.register('checkout', CheckoutViewSet, basename='checkout')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('users/me/subscription_status/', UserSubscriptionStatusView.as_view(), name='user-subscription-status'),
+    # path('users/me/subscription_status/', UserSubscriptionStatusView.as_view(), name='user-subscription-status'),
 ]
 

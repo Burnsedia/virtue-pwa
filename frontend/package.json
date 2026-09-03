@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@vitest/ui": "^4.0.15",
-    "@vue/test-utils": "^2.4.3",
+    "@vue/test-utils": "^2.5.0",
     "daisyui": "^5.0.43",
     "jsdom": "^23.0.1",
     "vitest": "^4.0.15"

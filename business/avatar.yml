@@ -1,0 +1,31 @@
+version: "1.0"
+app: virtue-pwa
+
+avatar:
+  id: foss_product_user_icp
+  label: Focus Planner Finn
+  role: Solo builder or student with overloaded task list
+  context: Needs practical prioritization and low-friction planning
+
+goals:
+  - Turn scattered tasks into clear priorities
+  - Finish weekly goals consistently
+  - Reduce planning overwhelm
+
+pain_points:
+  - Tools are too complex for quick daily use
+  - Priorities change faster than current workflow
+  - Most apps require accounts and constant connectivity
+
+objections:
+  - "I will abandon this if onboarding is long"
+  - "I do not want forced AI in the core workflow"
+
+proof_required:
+  - First project setup in minutes
+  - Offline reliability
+  - Clear weekly planning outcomes
+
+ctas:
+  primary: Use offline open version
+  secondary: Join premium collaboration waitlist

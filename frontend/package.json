@@ -16,7 +16,7 @@
   "dependencies": {
     "@astrojs/vue": "^7.0.2",
     "@tailwindcss/vite": "^4.1.11",
-    "astro": "^7.3.1",
+    "astro": "^7.4.2",
     "json-server": "^1.0.0-beta.0",
     "tailwindcss": "^4.1.11",
     "vue": "^3.5.17"

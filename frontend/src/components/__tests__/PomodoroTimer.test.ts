@@ -2,21 +2,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PomodoroTimer from '../PomodoroTimer.vue'
 
-// Mock Audio
-global.Audio = vi.fn().mockImplementation(() => ({
-  play: vi.fn()
-}))
+// Mock Audio with a constructable class so `new Audio()` in playSound() works
+// (a vi.fn() with an arrow mockImplementation cannot be used with `new`).
+class FakeAudio {
+  play = vi.fn()
+}
+;(global as any).Audio = FakeAudio
 
 describe('PomodoroTimer', () => {
   let wrapper: any
 
   beforeEach(() => {
-    // Mock localStorage
+    // Mock localStorage (jsdom's real in-memory Storage; see setup.ts)
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {})
 
-    // Mock fetch for projects and issues
-    global.fetch = vi.fn()
+    // Mock fetch for projects and issues. Resolve to empty by default so the
+    // component's async fetchProjects()/fetchIssues() (called on mount) never
+    // rejects with "Cannot read property 'json' of undefined".
+    global.fetch = vi.fn().mockResolvedValue({ json: async () => [] })
 
     wrapper = mount(PomodoroTimer)
   })
@@ -62,7 +66,7 @@ describe('PomodoroTimer', () => {
     expect(newWrapper.vm.pomodoroSettings).toEqual(mockSettings)
   })
 
-  it('switches to short break after 4 work sessions', async () => {
+  it('switches to long break after the 4th work session', async () => {
     // Mock issue selection
     await wrapper.setData({
       selectedIssue: 1,
@@ -74,16 +78,19 @@ describe('PomodoroTimer', () => {
       json: () => Promise.resolve({ id: 1 })
     })
 
-    // Start timer
+    // Start timer. Enable fake timers first: the async startTimer creates its
+    // setInterval only after awaiting fetch, so without this a real interval would
+    // be created before fake timers take effect (and advanceTimersByTime ignores it).
+    vi.useFakeTimers()
     const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
     await startButton.trigger('click')
 
-    // Simulate timer completion
-    vi.useFakeTimers()
-    vi.advanceTimersByTime(25 * 60 * 1000) // 25 minutes
+    // Simulate timer completion. Advancing 25 minutes lands `time` on 0, but the
+    // else branch (completion) only fires on the next tick, so add one interval.
+    vi.advanceTimersByTime(25 * 60 * 1000 + 1000) // 25 minutes + 1 tick
 
-    // Should switch to short break
-    expect(wrapper.vm.sessionType).toBe('shortBreak')
+    // The 4th pomodoro completes -> long break (standard pomodoro cadence)
+    expect(wrapper.vm.sessionType).toBe('longBreak')
     expect(wrapper.vm.pomodoros).toBe(4)
 
     vi.useRealTimers()
@@ -92,7 +99,10 @@ describe('PomodoroTimer', () => {
   it('switches to long break after completing work session', async () => {
     await wrapper.setData({
       selectedIssue: 1,
-      sessionType: 'shortBreak'
+      sessionType: 'shortBreak',
+      // setData does not re-run resetTimer(), so set the timer to the
+      // shortBreak duration (5 min) to match a real session switch.
+      time: 5 * 60
     })
 
     // Mock fetch
@@ -100,13 +110,14 @@ describe('PomodoroTimer', () => {
       json: () => Promise.resolve({ id: 1 })
     })
 
-    // Start timer
+    // Start timer (fake timers first; see test above)
+    vi.useFakeTimers()
     const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
     await startButton.trigger('click')
 
-    // Simulate timer completion
-    vi.useFakeTimers()
-    vi.advanceTimersByTime(5 * 60 * 1000) // 5 minutes
+    // Simulate timer completion. 5 minutes lands `time` on 0; add one tick for the
+    // completion branch that then switches back to a work session.
+    vi.advanceTimersByTime(5 * 60 * 1000 + 1000) // 5 minutes + 1 tick
 
     // Should switch back to work
     expect(wrapper.vm.sessionType).toBe('work')
@@ -116,9 +127,11 @@ describe('PomodoroTimer', () => {
 
   it('plays sound when timer completes', async () => {
     const playSpy = vi.fn()
-    global.Audio = vi.fn().mockImplementation(() => ({
-      play: playSpy
-    }))
+
+    // Real constructor so `new Audio(...)` in playSound() works.
+    ;(global as any).Audio = class {
+      play = playSpy
+    }
 
     await wrapper.setData({
       selectedIssue: 1,
@@ -130,13 +143,15 @@ describe('PomodoroTimer', () => {
       json: () => Promise.resolve({ id: 1 })
     })
 
-    // Start timer
+    // Start timer (fake timers first; see test above)
+    vi.useFakeTimers()
     const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
     await startButton.trigger('click')
 
-    // Simulate timer completion
-    vi.useFakeTimers()
-    vi.advanceTimersByTime(1000) // 1 second
+    // Simulate timer completion. The interval fires once per second and decrements
+    // `time` first; with time=1 the first tick reaches 0, so advance 2000ms to fire
+    // a second tick that enters the else branch and calls playSound().
+    vi.advanceTimersByTime(2000) // 2 seconds
 
     expect(playSpy).toHaveBeenCalled()
 

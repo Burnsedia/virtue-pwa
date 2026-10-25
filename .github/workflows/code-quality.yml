@@ -2,13 +2,13 @@ name: Code Quality
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ master ]
     paths:
       - 'backend/**'
       - 'frontend/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, master ]
+    branches: [ master ]
     paths:
       - 'backend/**'
       - 'frontend/**'
@@ -17,7 +17,12 @@ on:
 jobs:
   python-quality:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/') || github.event_name == 'pull_request'
+    # Django package is in backend/core/; run tools from there so manage.py and
+    # settings are on the path. No need for the broken head_commit.modified filter
+    # -- the paths: filter above already scopes this workflow.
+    defaults:
+      run:
+        working-directory: ./backend/core
 
     steps:
     - uses: actions/checkout@v4
@@ -31,7 +36,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-quality-${{ hashFiles('backend/requirments.txt') }}
+        key: ${{ runner.os }}-pip-quality-${{ hashFiles('backend/core/requirments.txt') }}
 
     - name: Install Python quality tools
       run: |
@@ -39,28 +44,25 @@ jobs:
         pip install black isort flake8 mypy bandit safety
 
     - name: Check Python code formatting with Black
-      run: black --check --diff backend/
-      working-directory: ./backend
+      run: black --check --diff . --exclude env
 
     - name: Check Python imports with isort
-      run: isort --check-only --diff backend/
-      working-directory: ./backend
+      run: isort --check-only --diff . --skip env
 
     - name: Lint Python code with flake8
-      run: flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=88
-      working-directory: ./backend
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=88
 
     - name: Security check with Bandit
-      run: bandit -r backend/ -f json -o bandit-report.json || true
-      working-directory: ./backend
+      run: bandit -r . --exclude env -f json -o bandit-report.json || true
 
     - name: Check for insecure dependencies
-      run: safety check --file backend/requirments.txt --output json || true
-      working-directory: ./backend
+      run: safety check --file requirments.txt --output json || true
 
   frontend-quality:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'frontend/') || github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
     - uses: actions/checkout@v4
@@ -68,29 +70,21 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
     - name: Install dependencies
-      run: |
-        cd frontend
-        npm ci
+      run: npm ci
 
     - name: Run Astro type checking
-      run: |
-        cd frontend
-        npm run astro check
+      run: npm run check
 
     - name: Run ESLint (if configured)
-      run: |
-        cd frontend
-        npx eslint . --ext .js,.ts,.vue,.astro || true
+      run: npx eslint . --ext .js,.ts,.vue,.astro || true
 
     - name: Check for security vulnerabilities
-      run: |
-        cd frontend
-        npm audit --audit-level moderate --json > audit-results.json || true
+      run: npm audit --audit-level moderate --json > audit-results.json || true
 
   codeql-analysis:
     runs-on: ubuntu-latest

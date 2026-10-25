@@ -1,4 +1,5 @@
 name: Dependency Updates
+# Kept at the user's request (Dependabot remains the primary dependency tooling).
 
 on:
   schedule:
@@ -21,16 +22,20 @@ jobs:
         python-version: '3.11'
 
     - name: Update pip dependencies
+      # pip-compile needs a requirements.in manifest. Add backend/core/requirements.in
+      # to enable auto-updates; until then this is a no-op so the job stays green.
       run: |
-        cd backend
-        pip install --upgrade pip-tools
-        pip-compile --upgrade requirements.in
-      continue-on-error: true
+        if [ -f backend/core/requirements.in ]; then
+          pip install --upgrade pip-tools
+          (cd backend/core && pip-compile --upgrade requirements.in)
+        else
+          echo "No requirements.in found -- add backend/core/requirements.in to enable Python dep updates."
+        fi
 
     - name: Update Node.js dependencies
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
@@ -55,7 +60,7 @@ jobs:
           This PR updates project dependencies to their latest versions.
 
           ## Changes
-          - Updated Python dependencies in `backend/requirements.txt`
+          - Updated Python dependencies in `backend/core/requirments.txt`
           - Updated Node.js dependencies in `frontend/package.json`
           - Fixed security vulnerabilities where possible
 

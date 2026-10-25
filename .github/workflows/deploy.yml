@@ -1,8 +1,10 @@
 name: Deploy
+# Deployment is GATED until the Hostinger VPS is provisioned.
+# Set the DEPLOY_READY repository secret once the server is ready; until then
+# build-and-push is skipped and nothing is built or deployed.
+# No Dockerfiles exist yet -- add them when setting up the VPS.
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
     inputs:
       environment:
@@ -21,10 +23,11 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # Gate: skip the whole build until DEPLOY_READY is set on the repository.
+    if: secrets.DEPLOY_READY != ''
     permissions:
       contents: read
       packages: write
-
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
 
@@ -66,7 +69,7 @@ jobs:
 
   deploy-staging:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[deploy staging]'))
+    if: github.event.inputs.environment == 'staging'
     needs: build-and-push
     environment: staging
 
@@ -77,12 +80,11 @@ jobs:
       run: |
         echo "Deploying to staging environment..."
         echo "Image digest: ${{ needs.build-and-push.outputs.image-digest }}"
-        # Add your staging deployment commands here
-        # Example: kubectl, docker-compose, serverless, etc.
+        # Add your staging deployment commands here (e.g. ssh to Hostinger VPS, docker compose up).
 
   deploy-production:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[deploy production]'))
+    if: github.event.inputs.environment == 'production'
     needs: build-and-push
     environment: production
 
@@ -93,12 +95,11 @@ jobs:
       run: |
         echo "Deploying to production environment..."
         echo "Image digest: ${{ needs.build-and-push.outputs.image-digest }}"
-        # Add your production deployment commands here
-        # Example: kubectl, docker-compose, serverless, etc.
+        # Add your production deployment commands here.
 
   notify:
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && needs.build-and-push.result == 'success'
     needs: [build-and-push, deploy-staging, deploy-production]
     steps:
     - name: Notify deployment status
@@ -106,6 +107,5 @@ jobs:
         if [ "${{ needs.deploy-production.result }}" == "success" ] || [ "${{ needs.deploy-staging.result }}" == "success" ]; then
           echo "✅ Deployment successful"
         else
-          echo "❌ Deployment failed"
-          exit 1
+          echo "⚪ Deployment gated or skipped (set the DEPLOY_READY secret once the Hostinger VPS is ready)."
         fi

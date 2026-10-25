@@ -82,7 +82,7 @@ describe('PomodoroTimer', () => {
     // setInterval only after awaiting fetch, so without this a real interval would
     // be created before fake timers take effect (and advanceTimersByTime ignores it).
     vi.useFakeTimers()
-    const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
+    const startButton = wrapper.findAll('button').find((btn: any) => btn.text() === 'Start')
     await startButton.trigger('click')
 
     // Simulate timer completion. Advancing 25 minutes lands `time` on 0, but the
@@ -112,7 +112,7 @@ describe('PomodoroTimer', () => {
 
     // Start timer (fake timers first; see test above)
     vi.useFakeTimers()
-    const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
+    const startButton = wrapper.findAll('button').find((btn: any) => btn.text() === 'Start')
     await startButton.trigger('click')
 
     // Simulate timer completion. 5 minutes lands `time` on 0; add one tick for the
@@ -145,7 +145,7 @@ describe('PomodoroTimer', () => {
 
     // Start timer (fake timers first; see test above)
     vi.useFakeTimers()
-    const startButton = wrapper.findAll('button').find(btn => btn.text() === 'Start')
+    const startButton = wrapper.findAll('button').find((btn: any) => btn.text() === 'Start')
     await startButton.trigger('click')
 
     // Simulate timer completion. The interval fires once per second and decrements

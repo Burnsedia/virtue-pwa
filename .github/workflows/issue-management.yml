@@ -1,10 +1,17 @@
 name: Issue Management
-
 on:
   issues:
     types: [opened, labeled, unlabeled, closed]
   pull_request:
     types: [opened, ready_for_review, review_requested, closed]
+  schedule:
+    # Needed so the stale-issues job below can run on a schedule.
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   issue-labeled:
@@ -15,7 +22,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Handle priority labels
-      if: startsWith(github.event.label.name, 'priority/')
+      if: startsWith(github.event.label.name, 'P0') || startsWith(github.event.label.name, 'P1') || startsWith(github.event.label.name, 'P2') || startsWith(github.event.label.name, 'P3')
       run: |
         echo "Issue prioritized: ${{ github.event.label.name }}"
 
@@ -25,7 +32,7 @@ jobs:
         echo "Bug reported - consider adding to sprint"
 
     - name: Handle feature labels
-      if: github.event.label.name == 'enhancement'
+      if: github.event.label.name == 'feature'
       run: |
         echo "Feature requested - consider for roadmap"
 
@@ -92,4 +99,4 @@ jobs:
 
           If this issue is still relevant, please add a comment or update the issue.
         close-issue-message: 'This issue has been automatically closed due to inactivity.'
-        exempt-issue-labels: 'pinned,security,bug,enhancement'
+        exempt-issue-labels: 'pinned,security,bug,feature,P0,P1,P2,P3'

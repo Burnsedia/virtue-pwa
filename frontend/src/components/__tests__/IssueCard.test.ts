@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import IssueCard from '../components/IssueCard.vue'
+import IssueCard from '../IssueCard.vue'
 
 describe('IssueCard', () => {
   const mockIssue = {

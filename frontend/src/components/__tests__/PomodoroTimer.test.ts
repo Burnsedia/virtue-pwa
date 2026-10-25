@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import PomodoroTimer from '../components/PomodoroTimer.vue'
+import PomodoroTimer from '../PomodoroTimer.vue'
 
 // Mock Audio
 global.Audio = vi.fn().mockImplementation(() => ({
